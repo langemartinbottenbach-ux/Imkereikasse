@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Imkereikasse V2.1 Test</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f4f1ea;
+}
+
+header{
+    background:#1e293b;
+    color:white;
+    padding:12px;
+    text-align:center;
+}
+
+.main{
+    display:flex;
+    gap:12px;
+    padding:12px;
+}
+
+.left{
+    flex:1;
+}
+
+.right{
+    width:340px;
+    background:white;
+    border-radius:12px;
+    padding:12px;
+}
+
+.cat{
+    background:white;
+    border-radius:12px;
+    padding:12px;
+    margin-bottom:12px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+    gap:8px;
+}
+
+.btn{
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    text-align:left;
+}
+
+.h{background:#fef3c7;}
+.i{background:#dcfce7;}
+.k{background:#ffedd5;}
+
+.more{
+    width:100%;
+    margin-top:10px;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    background:#e2e8f0;
+    cursor:pointer;
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    margin:6px 0;
+}
+
+.total{
+    font-size:28px;
+    font-weight:bold;
+}
+
+.pay{
+    width:100%;
+    padding:14px;
+    background:#16a34a;
+    color:#fff;
+    border:none;
+    border-radius:10px;
+}
+
+@media(max-width:900px){
+    .main{
+        flex-direction:column;
+    }
+
+    .right{
+        width:auto;
+    }
+}
+</style>
+
+</head>
+<body>
+
+<header>
+<h1>🐝 Imkereikasse V2.1 TEST</h1>
+</header>
+
+<div class="main">
+
+<div class="left" id="cats"></div>
+
+<div class="right">
+
+<h2>Warenkorb</h2>
+
+<div id="cart"></div>
+
+<div class="total" id="total">0,00 €</div>
+
+<button class="pay" onclick="checkout()">
+✅ Bezahlt
+</button>
+
+<hr>
+
+<div>
+Umsatz heute:
+<b id="umsatz">0,00 €</b>
+</div>
+
+<div>
+Verkäufe:
+<b id="bons">0</b>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const products=[
+
+{cat:'Honige',name:'Raps-Honig 250g',price:5,fav:true},
+{cat:'Honige',name:'Raps-Honig 500g',price:7,fav:true},
+{cat:'Honige',name:'Sommer-flüssig 250g',price:5,fav:false},
+{cat:'Honige',name:'Sommer-flüssig 500g',price:8,fav:true},
+{cat:'Honige',name:'Sommer-cremig 250g',price:5,fav:false},
+{cat:'Honige',name:'Sommer-cremig 500g',price:8,fav:true},
+{cat:'Honige',name:'Obstblüte-cremig 250g',price:5,fav:false},
+{cat:'Honige',name:'Obstblüte-cremig 500g',price:8,fav:false},
+
+{cat:'Imkergut',name:'Handcreme',price:6,fav:true},
+{cat:'Imkergut',name:'Körpercreme',price:12,fav:false},
+{cat:'Imkergut',name:'Fußcreme',price:25,fav:false},
+{cat:'Imkergut',name:'Propolino Lippenstift',price:4,fav:true},
+{cat:'Imkergut',name:'Bonbons',price:2.5,fav:true},
+{cat:'Imkergut',name:'Eierlikör',price:12,fav:true},
+
+{cat:'Kerzen',name:'Tannenbaum klein',price:7,fav:true},
+{cat:'Kerzen',name:'Tannenbaum groß',price:11,fav:true},
+{cat:'Kerzen',name:'Engel',price:4,fav:true},
+{cat:'Kerzen',name:'Rose',price:3,fav:false},
+{cat:'Kerzen',name:'Bienenkorb',price:4,fav:true},
+{cat:'Kerzen',name:'Gerollte Kerze',price:5,fav:true}
+
+];
+
+let cart=[];
+let sales=JSON.parse(localStorage.getItem('sales_v2_test')||'[]');
+
+const euro=v=>v.toFixed(2).replace('.',',')+' €';
+
+function render(){
+
+const el=document.getElementById('cats');
+el.innerHTML='';
+
+[
+['Honige','h'],
+['Imkergut','i'],
+['Kerzen','k']
+].forEach(([c,cl])=>{
+
+const d=document.createElement('div');
+
+d.className='cat';
+
+d.innerHTML=
+'<h2>'+c+'</h2><div class="grid"></div>';
+
+const g=d.querySelector('.grid');
+
+products
+.filter(p=>p.cat===c && p.fav)
+.forEach(p=>{
+
+const b=document.createElement('button');
+
+b.className='btn '+cl;
+
+b.innerHTML=
+'<b>'+p.name+'</b><br>'+euro(p.price);
+
+b.onclick=()=>add(p);
+
+g.appendChild(b);
+
+});
+
+const hiddenCount=
+products.filter(
+p=>p.cat===c && !p.fav
+).length;
+
+if(hiddenCount>0){
+
+const btn=
+document.createElement('button');
+
+btn.className='more';
+
+btn.textContent=
+'Weitere Produkte ('+hiddenCount+')';
+
+btn.onclick=()=>{
+
+const list=
+products
+.filter(
+p=>p.cat===c && !p.fav
+)
+.map(
+p=>p.name+' - '+euro(p.price)
+)
+.join('\n');
+
+alert(list);
+
+};
+
+d.appendChild(btn);
+
+}
+
+el.appendChild(d);
+
+});
+
+stats();
+renderCart();
+
+}
+
+function add(p){
+
+const e=
+cart.find(x=>x.name===p.name);
+
+if(e)e.qty++;
+else cart.push({...p,qty:1});
+
+renderCart();
+
+}
+
+function qty(n,d){
+
+const e=
+cart.find(x=>x.name===n);
+
+e.qty+=d;
+
+if(e.qty<=0)
+cart=cart.filter(x=>x.name!==n);
+
+renderCart();
+
+}
+
+function renderCart(){
+
+let s=0;
+
+document.getElementById('cart').innerHTML=
+cart.map(i=>{
+
+s+=i.qty*i.price;
+
+return `
+<div class="row">
+<span>${i.qty}x ${i.name}</span>
+<span>
+<button onclick="qty('${i.name}',-1)">-</button>
+<button onclick="qty('${i.name}',1)">+</button>
+</span>
+</div>
+`;
+
+}).join('');
+
+document.getElementById('total').textContent=
+euro(s);
+
+}
+
+function checkout(){
+
+if(!cart.length)return;
+
+const total=
+cart.reduce(
+(a,b)=>a+b.qty*b.price,
+0
+);
+
+sales.push({total});
+
+localStorage.setItem(
+'sales_v2_test',
+JSON.stringify(sales)
+);
+
+cart=[];
+
+renderCart();
+stats();
+
+alert(
+'Verkauf gespeichert: '+
+euro(total)
+);
+
+}
+
+function stats(){
+
+const u=
+sales.reduce(
+(a,b)=>a+b.total,
+0
+);
+
+document.getElementById('umsatz').textContent=
+euro(u);
+
+document.getElementById('bons').textContent=
+sales.length;
+
+}
+
+render();
+
+</script>
+
+</body>
+</html>
