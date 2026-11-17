@@ -1,436 +1,421 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Imkerei Kasse">
-<title>Imkerei Markt-Kasse</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>🐝 Imkereikasse 2.0</title>
+
 <style>
-  :root {
-    --bg: #f4f1ea; --card: #ffffff; --text: #2c251d; --muted: #6e655c; --border: #dfd8cc;
-    --honig: #d97706; --honig-bg: #fef3c7; --imkergut: #15803d; --imkergut-bg: #dcfce7;
-    --kerzen: #b45309; --kerzen-bg: #ffedd5; --primary: #1e293b; --danger: #dc2626; --success: #16a34a;
+:root{
+  --primary:#1e293b;
+  --success:#16a34a;
+  --bg:#f4f1ea;
+  --card:#ffffff;
+  --border:#d6d6d6;
+}
+
+*{
+  box-sizing:border-box;
+  font-family:Segoe UI,Arial,sans-serif;
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+}
+
+header{
+  background:var(--primary);
+  color:white;
+  padding:15px;
+}
+
+header h1{
+  margin:0;
+}
+
+.container{
+  display:flex;
+  flex-wrap:wrap;
+}
+
+.products{
+  flex:2;
+  padding:15px;
+}
+
+.cart{
+  flex:1;
+  min-width:320px;
+  background:white;
+  padding:15px;
+  border-left:1px solid var(--border);
+}
+
+h2{
+  margin-top:0;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:10px;
+}
+
+.product{
+  border:none;
+  border-radius:10px;
+  background:#fde68a;
+  padding:15px;
+  cursor:pointer;
+  text-align:left;
+  font-size:16px;
+}
+
+.product:hover{
+  opacity:0.9;
+}
+
+.price{
+  display:block;
+  font-weight:bold;
+  margin-top:6px;
+}
+
+.cart-item{
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid #ddd;
+  padding:8px 0;
+}
+
+.qty{
+  display:flex;
+  gap:4px;
+}
+
+.qty button{
+  width:28px;
+  height:28px;
+}
+
+.total{
+  font-size:28px;
+  font-weight:bold;
+  margin-top:15px;
+}
+
+.checkout{
+  width:100%;
+  margin-top:15px;
+  padding:15px;
+  background:var(--success);
+  color:white;
+  border:none;
+  border-radius:10px;
+  font-size:20px;
+  cursor:pointer;
+}
+
+.stats{
+  margin-top:20px;
+  background:#f8fafc;
+  padding:10px;
+  border-radius:10px;
+}
+
+@media(max-width:900px){
+  .container{
+    flex-direction:column;
   }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-  header { background: var(--primary); color: #fff; padding: 10px 18px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-  header h1 { margin: 0; font-size: 1.2rem; }
-  .nav-tabs { display: flex; gap: 8px; }
-  .nav-btn { background: rgba(255,255,255,0.12); color: #fff; border: none; padding: 10px 14px; border-radius: 8px; font-size: 0.92rem; font-weight: 600; cursor: pointer; }
-  .nav-btn.active { background: #f59e0b; color: #1e293b; }
-  #code-warning { background: #dc2626; color: #fff; padding: 12px; text-align: center; font-weight: 700; }
-  .view { display: none; flex: 1; overflow: hidden; }
-  .view.active { display: flex; }
-  #view-kasse { flex-direction: row; }
-  .categories-area { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 14px; }
-  .cat-box { background: var(--card); border-radius: 12px; padding: 12px; border: 1px solid var(--border); }
-  .cat-header { font-size: 1.05rem; font-weight: 700; margin: 0 0 10px 0; padding-bottom: 6px; border-bottom: 2px solid var(--border); display: flex; justify-content: space-between; }
-  .cat-honig .cat-header { color: var(--honig); border-color: var(--honig-bg); }
-  .cat-imkergut .cat-header { color: var(--imkergut); border-color: var(--imkergut-bg); }
-  .cat-kerzen .cat-header { color: var(--kerzen); border-color: var(--kerzen-bg); }
-  .btn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
-  .prod-btn { border: 1px solid var(--border); border-radius: 10px; padding: 11px 9px; text-align: left; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; min-height: 70px; }
-  .prod-btn:active { transform: scale(0.97); }
-  .cat-honig .prod-btn { background: var(--honig-bg); border-color: #fde68a; }
-  .cat-imkergut .prod-btn { background: var(--imkergut-bg); border-color: #bbf7d0; }
-  .cat-kerzen .prod-btn { background: var(--kerzen-bg); border-color: #fed7aa; }
-  .prod-name { font-weight: 600; font-size: 0.9rem; line-height: 1.2; margin-bottom: 5px; }
-  .prod-price { font-weight: 700; font-size: 0.98rem; color: var(--primary); }
-  .other-btn { background: #f1f5f9 !important; border: 2px dashed #94a3b8 !important; color: #334155; align-items: center; justify-content: center; text-align: center; font-weight: 700; font-size: 0.92rem; }
-  .cart-area { width: 340px; background: var(--card); border-left: 1px solid var(--border); display: flex; flex-direction: column; padding: 14px; flex-shrink: 0; }
-  .cart-title { font-size: 1.1rem; font-weight: 700; margin: 0 0 10px 0; display: flex; justify-content: space-between; align-items: center; }
-  .clear-cart-btn { background: #fee2e2; color: var(--danger); border: none; padding: 6px 10px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
-  .cart-items { flex: 1; overflow-y: auto; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 6px 0; }
-  .cart-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; border-bottom: 1px solid #f3f4f6; }
-  .cart-row-info { flex: 1; }
-  .cart-row-name { font-weight: 600; font-size: 0.9rem; }
-  .cart-row-sub { font-size: 0.82rem; color: var(--muted); }
-  .cart-qty-controls { display: flex; align-items: center; gap: 6px; }
-  .qty-btn { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: #f8fafc; font-weight: 700; font-size: 1.1rem; cursor: pointer; }
-  .cart-footer { padding-top: 12px; }
-  .total-box { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
-  .total-label { font-size: 1.1rem; font-weight: 600; }
-  .total-amount { font-size: 1.9rem; font-weight: 800; color: var(--primary); }
-  .enter-btn { width: 100%; background: var(--success); color: #fff; border: none; border-radius: 12px; padding: 16px; font-size: 1.25rem; font-weight: 800; cursor: pointer; margin-bottom: 10px; }
-  .enter-btn:disabled { background: #9ca3af; }
-  .storno-last-btn { width: 100%; background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; border-radius: 8px; padding: 10px; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
-  .storno-last-btn:disabled { opacity: 0.4; }
-  .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-  .modal-backdrop.open { display: flex; }
-  .modal-card { background: var(--card); border-radius: 16px; width: 100%; max-width: 680px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; }
-  .modal-header { padding: 14px 18px; background: var(--primary); color: #fff; display: flex; justify-content: space-between; align-items: center; }
-  .modal-header h2 { margin: 0; font-size: 1.1rem; }
-  .modal-close { background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; }
-  .modal-body { padding: 16px; overflow-y: auto; }
-  .scroll-view { flex-direction: column; overflow-y: auto; padding: 16px; gap: 16px; max-width: 1100px; margin: 0 auto; width: 100%; }
-  .panel { background: var(--card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); }
-  .panel h2 { margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-  .form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
-  input, select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; }
-  .btn-primary { background: var(--primary); color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; }
-  .btn-export { background: #0284c7; color: #fff; border: none; padding: 11px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; }
-  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-  th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
-  th { background: #f8fafc; }
-  .fav-toggle { font-size: 1.4rem; background: none; border: none; cursor: pointer; }
-  .del-btn { background: #fee2e2; color: var(--danger); border: none; padding: 6px 10px; border-radius: 6px; font-weight: 600; cursor: pointer; }
-  .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 14px; }
-  .stat-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
-  .stat-val { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
-  .stat-lbl { font-size: 0.85rem; color: var(--muted); }
-  #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 11px 20px; border-radius: 99px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 200; }
-  #toast.show { opacity: 1; }
+}
 </style>
 </head>
+
 <body>
 
-<div id="code-warning">⚠️ Hinweis: Der Code wurde noch nicht vollständig bis ganz unten (&lt;/html&gt;) eingefügt!</div>
-
 <header>
-  <h1>🐝 Imkerei Markt-Kasse</h1>
-  <div class="nav-tabs">
-    <button class="nav-btn active" onclick="switchView('kasse', this)">Kasse</button>
-    <button class="nav-btn" onclick="switchView('tagesliste', this)">Tagesliste & Export</button>
-    <button class="nav-btn" onclick="switchView('produkte', this)">Produkte & Favoriten</button>
-  </div>
+<h1>🐝 Imkereikasse 2.0</h1>
 </header>
 
-<div id="view-kasse" class="view active">
-  <div class="categories-area">
-    <div class="cat-box cat-honig">
-      <div class="cat-header"><span>🍯 Honige</span><small>Favoriten</small></div>
-      <div class="btn-grid" id="grid-Honige"></div>
-    </div>
-    <div class="cat-box cat-imkergut">
-      <div class="cat-header"><span>🌿 Imkergut</span><small>Favoriten</small></div>
-      <div class="btn-grid" id="grid-Imkergut"></div>
-    </div>
-    <div class="cat-box cat-kerzen">
-      <div class="cat-header"><span>🕯️ Kerzen</span><small>Favoriten</small></div>
-      <div class="btn-grid" id="grid-Kerzen"></div>
-    </div>
-  </div>
-  <div class="cart-area">
-    <div class="cart-title">
-      <span>Aktuelle Rechnung</span>
-      <button class="clear-cart-btn" onclick="clearCart()">Leeren</button>
-    </div>
-    <div class="cart-items" id="cart-items"></div>
-    <div class="cart-footer">
-      <div class="total-box">
-        <span class="total-label">Zu zahlen:</span>
-        <span class="total-amount" id="cart-total">0,00 €</span>
-      </div>
-      <button class="enter-btn" id="btn-enter" onclick="checkout()" disabled>ENTER / Bezahlt</button>
-      <button class="storno-last-btn" id="btn-storno-last" onclick="stornoLastSale()" disabled>↩ Letzte Rechnung stornieren</button>
-    </div>
-  </div>
+<div class="container">
+
+<div class="products">
+
+<h2>Favoriten</h2>
+
+<div class="grid" id="productGrid"></div>
+
 </div>
 
-<div id="view-tagesliste" class="view scroll-view">
-  <div class="panel">
-Verwende Code mit Vorsicht.
-📊 Tagesinventur & Excel-Export
+<div class="cart">
 
-📥 Für Excel exportieren (CSV)
-Neuen Markttag starten
+<h2>Aktuelle Rechnung</h2>
 
+<div id="cartItems"></div>
 
+<div class="total" id="total">
+0,00 €
+</div>
 
-0,00 €Tagesumsatz gesamt
-0Anzahl Verkäufe (Bons)
-0Verkaufte Artikel gesamt
+<button class="checkout" onclick="checkout()">
+✅ BEZAHLT
+</button>
 
-Verkaufte Mengen pro Produkt (Inventur)
+<div class="stats">
+<div><strong>Tagesumsatz:</strong> <span id="dailyRevenue">0,00 €</span></div>
+<div><strong>Verkäufe:</strong> <span id="saleCount">0</span></div>
+</div>
 
-Kategorie	Produkt	Stückzahl	Einzelpreis	Umsatz
+</div>
 
-🧾 Einzelne Rechnungen des Tages
+</div>
 
-Bon-Nr.	Uhrzeit	Artikel	Summe	Aktion
+<script>
 
-➕ Neues Produkt anlegen
+const defaultProducts = [
 
+{
+id:"h1",
+name:"Raps-Honig 500g",
+price:7.00
+},
 
-Honige
-Imkergut
-Kerzen
+{
+id:"h2",
+name:"Sommer-Honig 500g",
+price:8.00
+},
 
+{
+id:"h3",
+name:"Obstblüte 500g",
+price:8.00
+},
 
-Speichern
+{
+id:"i1",
+name:"Handcreme",
+price:6.00
+},
 
+{
+id:"i2",
+name:"Propolis Tinktur",
+price:12.00
+},
 
+{
+id:"i3",
+name:"Bonbons",
+price:2.50
+},
 
-⭐ Alle Produkte & Favoriten (★ = Startseite, ☆ = unter ANDERES)
+{
+id:"k1",
+name:"Engel Kerze",
+price:4.00
+},
 
-Favorit	Kategorie	Produktname	Preis (€)	Löschen
+{
+id:"k2",
+name:"Bienenkorb Kerze",
+price:4.00
+}
 
-Weitere Artikel
-✕ Schließen
-
-
-
-📥 Markt-Daten für Excel exportieren
-✕
-
-Marktname *
-Ort *
-Datum *
-CSV-Datei jetzt speichern
-
-
-document.getElementById('code-warning').style.display = 'none';
-const DEFAULT_PRODUCTS = [
-{ id: 'h1', cat: 'Honige', name: 'Raps-Honig 250g', price: 5.00, fav: true },
-{ id: 'h2', cat: 'Honige', name: 'Raps-Honig 500g', price: 7.00, fav: true },
-{ id: 'h3', cat: 'Honige', name: 'Sommer-flüssig 250g', price: 5.00, fav: true },
-{ id: 'h4', cat: 'Honige', name: 'Sommer-flüssig 500g', price: 8.00, fav: true },
-{ id: 'h5', cat: 'Honige', name: 'Sommer-cremig 250g', price: 5.00, fav: true },
-{ id: 'h6', cat: 'Honige', name: 'Sommer-cremig 500g', price: 8.00, fav: true },
-{ id: 'h7', cat: 'Honige', name: 'Obstblüte-cremig 250g', price: 5.00, fav: true },
-{ id: 'h8', cat: 'Honige', name: 'Obstblüte-cremig 500g', price: 8.00, fav: true },
-{ id: 'h9', cat: 'Honige', name: 'Akazie-flüssig 250g', price: 6.00, fav: false },
-{ id: 'h10', cat: 'Honige', name: 'Akazie-flüssig 500g', price: 9.00, fav: false },
-{ id: 'h11', cat: 'Honige', name: 'Kastanie-flüssig 250g', price: 6.00, fav: false },
-{ id: 'i1', cat: 'Imkergut', name: 'Handcreme', price: 6.00, fav: true },
-{ id: 'i2', cat: 'Imkergut', name: 'Körpercreme', price: 12.00, fav: false },
-{ id: 'i3', cat: 'Imkergut', name: 'Fußcreme', price: 25.00, fav: false },
-{ id: 'i4', cat: 'Imkergut', name: 'Propolino Lippenstift', price: 4.00, fav: true },
-{ id: 'i5', cat: 'Imkergut', name: 'Lippenbalsam', price: 4.50, fav: false },
-{ id: 'i6', cat: 'Imkergut', name: 'Gelee-Royal Creme klein', price: 2.50, fav: false },
-{ id: 'i7', cat: 'Imkergut', name: 'Gelee-Royal Creme groß', price: 12.00, fav: false },
-{ id: 'i8', cat: 'Imkergut', name: 'Propolis Honig Creme groß', price: 12.00, fav: false },
-{ id: 'i9', cat: 'Imkergut', name: 'Propolis Salbe -Naturell- klein', price: 2.50, fav: false },
-{ id: 'i10', cat: 'Imkergut', name: 'Propolis Salbe -Naturell- groß', price: 12.00, fav: false },
-{ id: 'i11', cat: 'Imkergut', name: 'Propolis Tinktur MIT Alkohol', price: 12.00, fav: true },
-{ id: 'i12', cat: 'Imkergut', name: 'Propolis Tinktur OHNE Alkohol', price: 12.00, fav: true },
-{ id: 'i13', cat: 'Imkergut', name: 'Seife fest mit Honig', price: 3.00, fav: true },
-{ id: 'i14', cat: 'Imkergut', name: 'Seife fest mit Propolis', price: 3.00, fav: false },
-{ id: 'i15', cat: 'Imkergut', name: 'Seife flüssig', price: 6.00, fav: false },
-{ id: 'i16', cat: 'Imkergut', name: 'Bonbons', price: 2.50, fav: true },
-{ id: 'i17', cat: 'Imkergut', name: 'Holz&Lederbalsam Bienenwachs', price: 14.00, fav: false },
-{ id: 'i18', cat: 'Imkergut', name: 'Bienenwachs', price: 7.00, fav: false },
-{ id: 'i19', cat: 'Imkergut', name: 'Eierlikör', price: 12.00, fav: true },
-{ id: 'k1', cat: 'Kerzen', name: 'Tannenbaum klein', price: 7.00, fav: true },
-{ id: 'k2', cat: 'Kerzen', name: 'Tannenbaum groß', price: 11.00, fav: true },
-{ id: 'k3', cat: 'Kerzen', name: 'Stumpfenkerze mit Stern', price: 7.00, fav: false },
-{ id: 'k4', cat: 'Kerzen', name: 'Stumpfenkerze mit Glocke', price: 11.00, fav: false },
-{ id: 'k5', cat: 'Kerzen', name: 'Zapfen-Kerze', price: 7.00, fav: false },
-{ id: 'k6', cat: 'Kerzen', name: 'Großer Stern', price: 12.00, fav: false },
-{ id: 'k7', cat: 'Kerzen', name: 'Engel', price: 4.00, fav: true },
-{ id: 'k8', cat: 'Kerzen', name: 'Rose', price: 3.00, fav: false },
-{ id: 'k9', cat: 'Kerzen', name: 'Geschenkkorb', price: 3.00, fav: false },
-{ id: 'k10', cat: 'Kerzen', name: 'Bienenkorb', price: 4.00, fav: true },
-{ id: 'k11', cat: 'Kerzen', name: 'Tischkerze gedreht gegossen', price: 4.00, fav: false },
-{ id: 'k12', cat: 'Kerzen', name: 'Gedrehte Kerze klein', price: 3.00, fav: true },
-{ id: 'k13', cat: 'Kerzen', name: 'Gedrehte Kerze mittel', price: 6.00, fav: false },
-{ id: 'k14', cat: 'Kerzen', name: 'Gedrehte Kerze groß', price: 10.00, fav: false },
-{ id: 'k15', cat: 'Kerzen', name: 'Gedrehte Tischkerze', price: 3.00, fav: false },
-{ id: 'k16', cat: 'Kerzen', name: 'Gerollte Kerze', price: 5.00, fav: true }
 ];
-let products = JSON.parse(localStorage.getItem('imkerei_products'));
-if (!Array.isArray(products) || products.length === 0) products = DEFAULT_PRODUCTS;
-let sales = JSON.parse(localStorage.getItem('imkerei_sales')) || [];
-let savedMarkets = JSON.parse(localStorage.getItem('imkerei_markets')) || ['Weihnachtsmarkt', 'Bauernmarkt'];
-let savedPlaces = JSON.parse(localStorage.getItem('imkerei_places')) || ['Hornbach', 'Pirmasens'];
-let cart = [];
-function saveState() {
-localStorage.setItem('imkerei_products', JSON.stringify(products));
-localStorage.setItem('imkerei_sales', JSON.stringify(sales));
-localStorage.setItem('imkerei_markets', JSON.stringify(savedMarkets));
-localStorage.setItem('imkerei_places', JSON.stringify(savedPlaces));
-}
-function formatEuro(num) { return num.toFixed(2).replace('.', ',') + ' €'; }
-function showToast(msg) {
-const t = document.getElementById('toast');
-t.textContent = msg; t.classList.add('show');
-setTimeout(() => t.classList.remove('show'), 2200);
-}
-function switchView(viewName, btn) {
-document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-document.getElementById('view-' + viewName).classList.add('active');
-btn.classList.add('active');
-if (viewName === 'kasse') renderKasse();
-if (viewName === 'tagesliste') renderTagesliste();
-if (viewName === 'produkte') renderProdukte();
-}
-function renderKasse() {
-['Honige', 'Imkergut', 'Kerzen'].forEach(cat => {
-const grid = document.getElementById('grid-' + cat);
-grid.innerHTML = '';
-const favs = products.filter(p => p.cat === cat && p.fav);
-const nonFavCount = products.filter(p => p.cat === cat && !p.fav).length;
-favs.forEach(p => {
-const btn = document.createElement('button');
-btn.className = 'prod-btn';
-btn.innerHTML = <span class="prod-name">${p.name}</span><span class="prod-price">${formatEuro(p.price)}</span>;
-btn.onclick = () => addToCart(p.id);
-grid.appendChild(btn);
-});
-const otherBtn = document.createElement('button');
-otherBtn.className = 'prod-btn other-btn';
-otherBtn.innerHTML = ANDERES<br><small style="font-weight:400; font-size:0.78rem;">(${nonFavCount} weitere)</small>;
-otherBtn.onclick = () => openOtherModal(cat);
-grid.appendChild(otherBtn);
-});
-renderCart();
-}
-function openOtherModal(cat) {
-const others = products.filter(p => p.cat === cat && !p.fav);
-document.getElementById('modal-other-title').textContent = cat + ' – Weitere Artikel';
-const grid = document.getElementById('modal-other-grid');
-grid.className = 'btn-grid cat-' + cat.toLowerCase();
-grid.innerHTML = '';
-if (others.length === 0) {
-grid.innerHTML = 'Alle Produkte dieser Kategorie sind bereits als Favoriten auf der Hauptseite.';
-} else {
-others.forEach(p => {
-const btn = document.createElement('button');
-btn.className = 'prod-btn';
-btn.innerHTML = <span class="prod-name">${p.name}</span><span class="prod-price">${formatEuro(p.price)}</span>;
-btn.onclick = () => { addToCart(p.id); closeModal('modal-other'); };
-grid.appendChild(btn);
-});
-}
-document.getElementById('modal-other').classList.add('open');
-}
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-function addToCart(prodId) {
-const prod = products.find(p => p.id === prodId);
-if (!prod) return;
-const existing = cart.find(item => item.id === prodId);
-if (existing) existing.qty += 1;
-else cart.push({ id: prod.id, name: prod.name, cat: prod.cat, price: prod.price, qty: 1 });
-renderCart();
-}
-function changeQty(prodId, delta) {
-const idx = cart.findIndex(i => i.id === prodId);
-if (idx === -1) return;
-cart[idx].qty += delta;
-if (cart[idx].qty <= 0) cart.splice(idx, 1);
-renderCart();
-}
-function clearCart() { cart = []; renderCart(); }
-function renderCart() {
-const container = document.getElementById('cart-items');
-const totalEl = document.getElementById('cart-total');
-const enterBtn = document.getElementById('btn-enter');
-const stornoBtn = document.getElementById('btn-storno-last');
-stornoBtn.disabled = sales.length === 0;
-if (cart.length === 0) {
-container.innerHTML = 'Produkte antippen zum Hinzufügen';
-totalEl.textContent = '0,00 €'; enterBtn.disabled = true; return;
-}
-let sum = 0; container.innerHTML = '';
-cart.forEach(item => {
-const lineTotal = item.price * item.qty; sum += lineTotal;
-const row = document.createElement('div'); row.className = 'cart-row';
-row.innerHTML = <div class="cart-row-info"><div class="cart-row-name">${item.name}</div><div class="cart-row-sub">${item.qty} × ${formatEuro(item.price)} = <strong>${formatEuro(lineTotal)}</strong></div></div><div class="cart-qty-controls"><button class="qty-btn" onclick="changeQty('${item.id}', -1)">−</button><button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button></div>;
-container.appendChild(row);
-});
-totalEl.textContent = formatEuro(sum); enterBtn.disabled = false;
-}
-function checkout() {
-if (cart.length === 0) return;
-const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-const timeStr = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-sales.push({ id: Date.now(), nr: sales.length + 1, time: timeStr, items: JSON.parse(JSON.stringify(cart)), total: total });
-cart = []; saveState(); renderCart(); showToast('✓ Verkauf über ' + formatEuro(total) + ' gespeichert!');
-} 
 
-function stornoLastSale() {
-if (sales.length === 0) return;
-const last = sales[sales.length - 1];
-if (confirm('Letzte Rechnung (Bon #' + last.nr + ' über ' + formatEuro(last.total) + ') stornieren?')) {
-sales.pop(); saveState(); renderCart(); showToast('↩ Letzte Rechnung storniert');
+let cart = [];
+
+let sales =
+JSON.parse(localStorage.getItem("imkerei_sales"))
+|| [];
+
+function euro(value){
+  return value.toFixed(2).replace(".",",") + " €";
 }
-}
-function renderTagesliste() {
-const totalUmsatz = sales.reduce((s, b) => s + b.total, 0);
-let totalArtikel = 0; const invMap = {};
-sales.forEach(bon => bon.items.forEach(item => {
-totalArtikel += item.qty;
-if (!invMap[item.name]) invMap[item.name] = { cat: item.cat, name: item.name, price: item.price, qty: 0, sum: 0 };
-invMap[item.name].qty += item.qty; invMap[item.name].sum += item.qty * item.price;
-}));
-document.getElementById('stat-umsatz').textContent = formatEuro(totalUmsatz);
-document.getElementById('stat-bons').textContent = sales.length;
-document.getElementById('stat-artikel').textContent = totalArtikel;
-const invBody = document.getElementById('inventory-tbody'); invBody.innerHTML = '';
-const invList = Object.values(invMap).sort((a, b) => a.cat.localeCompare(b.cat) || a.name.localeCompare(b.name));
-if (invList.length === 0) invBody.innerHTML = 'Noch keine Verkäufe heute erfasst.';
-else invList.forEach(row => { invBody.innerHTML += <tr><td>${row.cat}</td><td><strong>${row.name}</strong></td><td>${row.qty}</td><td>${formatEuro(row.price)}</td><td>${formatEuro(row.sum)}</td></tr>; });
-const salesBody = document.getElementById('sales-tbody'); salesBody.innerHTML = '';
-if (sales.length === 0) salesBody.innerHTML = 'Keine Rechnungen vorhanden.';
-else [...sales].reverse().forEach(bon => {
-const desc = bon.items.map(i => i.qty + '× ' + i.name).join(', ');
-salesBody.innerHTML += <tr><td>#${bon.nr}</td><td>${bon.time}</td><td>${desc}</td><td><strong>${formatEuro(bon.total)}</strong></td><td><button class="del-btn" onclick="deleteSingleSale(${bon.id})">Löschen</button></td></tr>;
+
+function renderProducts(){
+
+const container =
+document.getElementById("productGrid");
+
+container.innerHTML = "";
+
+defaultProducts.forEach(product=>{
+
+const button =
+document.createElement("button");
+
+button.className="product";
+
+button.innerHTML=
+`
+${product.name}
+<span class="price">
+${euro(product.price)}
+</span>
+`;
+
+button.onclick=
+()=>addToCart(product);
+
+container.appendChild(button);
+
 });
+
 }
-function deleteSingleSale(bonId) {
-if (confirm('Diese einzelne Rechnung wirklich löschen?')) { sales = sales.filter(s => s.id !== bonId); saveState(); renderTagesliste(); showToast('Rechnung gelöscht'); }
-}
-function resetDay() {
-if (confirm('Alle heutigen Verkäufe löschen und neuen Markttag starten?')) { sales = []; saveState(); renderTagesliste(); showToast('Neuer Markttag gestartet'); }
-}
-function openExportModal() {
-if (sales.length === 0) { alert('Es sind noch keine Verkäufe zum Exportieren vorhanden.'); return; }
-document.getElementById('list-maerkte').innerHTML = savedMarkets.map(m => <option value="${m}">).join('');
-document.getElementById('list-orte').innerHTML = savedPlaces.map(o => <option value="${o}">).join('');
-document.getElementById('exp-datum').value = new Date().toISOString().split('T')[0];
-document.getElementById('modal-export').classList.add('open');
-}
-function runCsvExport() {
-const markt = document.getElementById('exp-markt').value.trim();
-const ort = document.getElementById('exp-ort').value.trim();
-const datumRaw = document.getElementById('exp-datum').value;
-if (!markt || !ort || !datumRaw) { alert('Bitte alle drei Pflichtfelder (Marktname, Ort, Datum) ausfüllen!'); return; }
-if (!savedMarkets.includes(markt)) savedMarkets.push(markt);
-if (!savedPlaces.includes(ort)) savedPlaces.push(ort);
-saveState();
-const [jahr, monat, tag] = datumRaw.split('-');
-const datumDE = ${tag}.${monat}.${jahr};
-const summary = {};
-sales.forEach(bon => bon.items.forEach(item => {
-if (!summary[item.name]) summary[item.name] = { cat: item.cat, name: item.name, price: item.price, qty: 0 };
-summary[item.name].qty += item.qty;
-}));
-let csv = '\uFEFFDatum;Jahr;Marktname;Ort;Kategorie;Produkt;Verkaufte_Menge;Einzelpreis_EUR;Gesamtumsatz_EUR\n';
-Object.values(summary).forEach(row => {
-const gesamt = (row.qty * row.price).toFixed(2).replace('.', ',');
-const einzel = row.price.toFixed(2).replace('.', ',');
-csv += ${datumDE};${jahr};"${markt}";"${ort}";"${row.cat}";"${row.name}";${row.qty};${einzel};${gesamt}\n;
+
+function addToCart(product){
+
+const existing =
+cart.find(x=>x.id===product.id);
+
+if(existing){
+
+existing.qty++;
+
+}else{
+
+cart.push({
+...product,
+qty:1
 });
-const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-const url = URL.createObjectURL(blob); const a = document.createElement('a');
-a.href = url; a.download = Imkerei_${jahr}_${markt.replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, '_')}_${ort.replace(/[^a-zA-Z0-9äöüÄÖÜß]/g, '_')}.csv;
-a.click(); URL.revokeObjectURL(url); closeModal('modal-export'); showToast('📥 Excel-CSV-Datei erstellt!');
+
 }
-function renderProdukte() {
-const tbody = document.getElementById('products-tbody'); tbody.innerHTML = '';
-const sorted = [...products].sort((a, b) => a.cat.localeCompare(b.cat) || a.name.localeCompare(b.name));
-sorted.forEach(p => {
-const tr = document.createElement('tr');
-tr.innerHTML = <td><button class="fav-toggle" onclick="toggleFav('${p.id}')">${p.fav ? '★' : '☆'}</button></td><td>${p.cat}</td><td><strong>${p.name}</strong></td><td><input type="number" step="0.10" value="${p.price.toFixed(2)}" style="width:90px;" onchange="updatePrice('${p.id}', this.value)"> €</td><td><button class="del-btn" onclick="deleteProduct('${p.id}')">Löschen</button></td>;
-tbody.appendChild(tr);
+
+renderCart();
+
+}
+
+function changeQty(id, amount){
+
+const item =
+cart.find(x=>x.id===id);
+
+if(!item) return;
+
+item.qty += amount;
+
+if(item.qty<=0){
+
+cart =
+cart.filter(x=>x.id!==id);
+
+}
+
+renderCart();
+
+}
+
+function renderCart(){
+
+const container =
+document.getElementById("cartItems");
+
+container.innerHTML="";
+
+let total=0;
+
+cart.forEach(item=>{
+
+total += item.price * item.qty;
+
+const row =
+document.createElement("div");
+
+row.className="cart-item";
+
+row.innerHTML=
+`
+<div>
+<strong>${item.name}</strong><br>
+${item.qty} x ${euro(item.price)}
+</div>
+
+<div class="qty">
+<button onclick="changeQty('${item.id}',-1)">-</button>
+<button onclick="changeQty('${item.id}',1)">+</button>
+</div>
+`;
+
+container.appendChild(row);
+
 });
+
+document.getElementById("total").textContent =
+euro(total);
+
 }
-function toggleFav(id) { const p = products.find(x => x.id === id); if (p) { p.fav = !p.fav; saveState(); renderProdukte(); } }
-function updatePrice(id, val) { const num = parseFloat(val); if (!isNaN(num) && num >= 0) { const p = products.find(x => x.id === id); if (p) { p.price = num; saveState(); showToast('Preis aktualisiert'); } } }
-function addProduct() {
-const cat = document.getElementById('new-cat').value;
-const name = document.getElementById('new-name').value.trim();
-const price = parseFloat(document.getElementById('new-price').value);
-const fav = document.getElementById('new-fav').checked;
-if (!name || isNaN(price) || price < 0) { alert('Bitte Produktname und gültigen Preis eingeben.'); return; }
-products.push({ id: 'p_' + Date.now(), cat, name, price, fav });
-saveState(); document.getElementById('new-name').value = ''; document.getElementById('new-price').value = '';
-renderProdukte(); showToast('✓ Neues Produkt gespeichert');
+
+function checkout(){
+
+if(cart.length===0){
+
+alert("Keine Artikel ausgewählt.");
+return;
+
 }
-function deleteProduct(id) { if (confirm('Dieses Produkt dauerhaft entfernen?')) { products = products.filter(p => p.id !== id); saveState(); renderProdukte(); } }
-renderKasse();
+
+const total =
+cart.reduce(
+(sum,item)=>
+sum + item.price * item.qty,
+0
+);
+
+sales.push({
+
+id:Date.now(),
+date:new Date().toISOString(),
+total:total,
+items:[...cart]
+
+});
+
+localStorage.setItem(
+"imkerei_sales",
+JSON.stringify(sales)
+);
+
+cart=[];
+
+renderCart();
+updateStats();
+
+alert(
+"Verkauf gespeichert: "
++ euro(total)
+);
+
+}
+
+function updateStats(){
+
+const revenue =
+sales.reduce(
+(sum,sale)=>sum+sale.total,
+0
+);
+
+document.getElementById(
+"dailyRevenue"
+).textContent = euro(revenue);
+
+document.getElementById(
+"saleCount"
+).textContent = sales.length;
+
+}
+
+renderProducts();
+renderCart();
+updateStats();
+
+</script>
+
+</body>
+</html>
+  
   
