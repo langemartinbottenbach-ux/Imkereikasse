@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Imkereikasse V3.36</title>
+<title>Imkereikasse V3.37</title>
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#f4f1ea}
 header{background:#1e293b;color:#fff;padding:0;text-align:center;height:18px;overflow:hidden}header h6{margin:0;line-height:18px}
@@ -20,7 +20,7 @@ header{background:#1e293b;color:#fff;padding:0;text-align:center;height:18px;ove
 </style>
 </head>
 <body>
-<header><h6>🐝 Imkereikasse 3.36</h6></header>
+<header><h6>🐝 Imkereikasse 3.37</h6></header>
 <div class="main">
 <div class="left" id="cats"></div>
 <div class="right">
@@ -226,6 +226,8 @@ e.qty++;
 }else{
 
 cart.push({
+cartId:Date.now().toString()+Math.random().toString(36).substring(2),
+
 id:p.id,
 cat:p.cat,
 name:p.name,
@@ -266,6 +268,7 @@ item.qty--;
 
 cart.push({
 ...JSON.parse(JSON.stringify(item)),
+cartId:Date.now().toString()+Math.random().toString(36).substring(2),
 qty:1,
 isGift:true,
 discountType:null,
