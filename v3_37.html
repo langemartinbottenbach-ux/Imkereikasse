@@ -217,15 +217,8 @@ render();
 
 function add(p){
 
-const e=cart.find(x=>x.name===p.name);
-
-if(e){
-
-e.qty++;
-
-}else{
-
 cart.push({
+
 cartId:Date.now().toString()+Math.random().toString(36).substring(2),
 
 id:p.id,
@@ -242,9 +235,8 @@ isGift:false,
 
 discountType:null,
 discountValue:0
-});
 
-}
+});
 
 renderCart();
 
@@ -271,24 +263,7 @@ const item=cart.find(x=>x.cartId===cartId);
 
 if(!item)return;
 
-if(item.qty>1 && !item.isGift){
 
-item.qty--;
-
-cart.push({
-...JSON.parse(JSON.stringify(item)),
-cartId:Date.now().toString()+Math.random().toString(36).substring(2),
-qty:1,
-isGift:true,
-discountType:null,
-discountValue:0
-});
-
-renderCart();
-
-return;
-
-}
 
 item.isGift=!item.isGift;
 
