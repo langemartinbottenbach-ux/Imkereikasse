@@ -249,16 +249,25 @@ discountValue:0
 renderCart();
 
 }
-function qty(n,d){
-const e=cart.find(x=>x.name===n);
+function qty(cartId,d){
+
+const e=cart.find(x=>x.cartId===cartId);
+
+if(!e)return;
+
 e.qty+=d;
-if(e.qty<=0)cart=cart.filter(x=>x.name!==n);
-renderCart();
+
+if(e.qty<=0){
+cart=cart.filter(x=>x.cartId!==cartId);
 }
 
-function toggleGift(name){
+renderCart();
 
-const item=cart.find(x=>x.name===name);
+}
+
+function toggleGift(cartId){
+
+const item=cart.find(x=>x.cartId===cartId);
 
 if(!item)return;
 
@@ -294,9 +303,9 @@ renderCart();
 
 let discountItem=null;
 
-function setDiscount(name){
+function setDiscount(cartId){
 
-discountItem=cart.find(x=>x.name===name);
+discountItem=cart.find(x=>x.cartId===cartId);
 
 if(!discountItem)return;
 
@@ -405,7 +414,7 @@ text+=' 💰 -'+euro(i.discountValue);
 
 }
 
-return '<div class="row"><span>'+text+'</span><span><button onclick="qty(\''+i.name+'\',-1)">-</button><button onclick="qty(\''+i.name+'\',1)">+</button><button onclick="toggleGift(\''+i.name+'\')">🎁</button><button onclick="setDiscount(\''+i.name+'\')">💰</button></span></div>';
+return '<div class="row"><span>'+text+'</span><span><button onclick="qty(\''+i.cartId+'\',-1)">-</button><button onclick="qty(\''+i.cartId+'\',1)">+</button><button onclick="toggleGift(\''+i.cartId+'\')">🎁</button><button onclick="setDiscount(\''+i.cartId+'\')">💰</button></span></div>';
 
 }).join('');
 
