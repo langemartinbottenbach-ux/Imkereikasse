@@ -175,7 +175,55 @@ return '<div class="row"><span>'+text+'</span><span><button onclick="qty(\''+i.n
 
 document.getElementById('total').textContent=euro(s);
 }
-function checkout(){if(!cart.length)return;const total=cart.reduce((a,b)=>a+b.qty*b.price,0);if(editingSale!==null){sales[editingSale]={time:new Date().toLocaleTimeString('de-DE'),total:total,items:JSON.parse(JSON.stringify(cart))};editingSale=null;document.getElementById('editInfo').style.display='none';localStorage.setItem('sales_v31',JSON.stringify(sales));cart=[];expanded={};render();return;}sales.push({time:new Date().toLocaleTimeString('de-DE'),total:total,items:JSON.parse(JSON.stringify(cart))});localStorage.setItem('sales_v31',JSON.stringify(sales));cart=[];expanded={};render();}
+function checkout(){
+
+if(!cart.length)return;
+
+const total=cart.reduce((sum,item)=>{
+
+const preis=item.isGift?0:item.price;
+
+return sum+(item.qty*preis);
+
+},0);
+
+if(editingSale!==null){
+
+sales[editingSale]={
+time:new Date().toLocaleTimeString('de-DE'),
+total:total,
+items:JSON.parse(JSON.stringify(cart))
+};
+
+editingSale=null;
+
+document.getElementById('editInfo').style.display='none';
+
+localStorage.setItem('sales_v31',JSON.stringify(sales));
+
+cart=[];
+expanded={};
+
+render();
+
+return;
+
+}
+
+sales.push({
+time:new Date().toLocaleTimeString('de-DE'),
+total:total,
+items:JSON.parse(JSON.stringify(cart))
+});
+
+localStorage.setItem('sales_v31',JSON.stringify(sales));
+
+cart=[];
+expanded={};
+
+render();
+
+}
 function stats(){const u=sales.filter(s=>!s.storno).reduce((a,b)=>a+b.total,0);let artikelAnzahl=0;sales.filter(sale=>!sale.storno).forEach(sale=>{if(sale.items){sale.items.forEach(item=>{artikelAnzahl+=item.qty;});}});umsatz.textContent=euro(u);bons.textContent=sales.filter(s=>!s.storno).length;document.getElementById('artikel').textContent=artikelAnzahl;}
 function showSales(){const gesamt=sales.filter(s=>!s.storno).reduce((a,b)=>a+b.total,0);salesContent.innerHTML=(sales.length?sales.map((s,i)=>{let artikel='';if(s.items){artikel=s.items.map(item=>item.qty+'x '+item.name+' ('+euro(item.price)+') = '+euro(item.qty*item.price)).join('<br>');}return `<div><strong>${i+1}. ${s.time}</strong> - ${euro(s.total)}${s.storno?'<br><span style="color:red;font-weight:bold;">❌ STORNIERT</span><br><br><button style="background:#16a34a;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="restoreSale('+i+')">↩️ Storno aufheben</button>':''}<br><br>${artikel}${!s.storno?'<br><br><button style="background:red;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="deleteSale('+i+')">🗑️ Stornieren</button>':''}</div><hr>`;}).join(''):'Keine Verkäufe vorhanden')+'<hr><h3>Gesamtumsatz: '+euro(gesamt)+'</h3>';salesModal.classList.add('open');}
 let deleteIndex=null;function closeSales(){salesModal.classList.remove('open');}function deleteSale(index){deleteIndex=index;document.getElementById('confirmModal').classList.add('open');}function closeConfirm(){document.getElementById('confirmModal').classList.remove('open');deleteIndex=null;}function confirmDelete(){if(deleteIndex===null)return;sales[deleteIndex].storno=true;localStorage.setItem('sales_v31',JSON.stringify(sales));document.getElementById('confirmModal').classList.remove('open');deleteIndex=null;stats();showSales();}function restoreSale(index){sales[index].storno=false;localStorage.setItem('sales_v31',JSON.stringify(sales));stats();showSales();}
