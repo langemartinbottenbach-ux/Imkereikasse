@@ -216,6 +216,8 @@ total:total,
 items:JSON.parse(JSON.stringify(cart))
 });
 
+console.log('BON GESPEICHERT',sales[sales.length-1]);
+
 localStorage.setItem('sales_v31',JSON.stringify(sales));
 
 cart=[];
