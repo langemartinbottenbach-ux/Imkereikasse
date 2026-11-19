@@ -332,7 +332,17 @@ text+=' 🎁';
 text+=' ('+euro(preis)+')';
 
 if(i.discountValue>0){
+
+if(i.discountType==='PERCENT'){
+
+text+=' 💰 -'+i.discountValue+'%';
+
+}else{
+
 text+=' 💰 -'+euro(i.discountValue);
+
+}
+
 }
 
 return '<div class="row"><span>'+text+'</span><span><button onclick="qty(\''+i.name+'\',-1)">-</button><button onclick="qty(\''+i.name+'\',1)">+</button><button onclick="toggleGift(\''+i.name+'\')">🎁</button><button onclick="setDiscount(\''+i.name+'\')">💰</button></span></div>';
