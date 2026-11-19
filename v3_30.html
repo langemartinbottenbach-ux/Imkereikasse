@@ -121,8 +121,7 @@ function editProduct(index){
 editProductIndex=index;
 let p=products[index];
 
-salesContent.innerHTML='<h2>Produkt bearbeiten</h2><b>'+p.name+'</b><br>ID: '+p.id+'<br><br>Kategorie:
-<br><select id="editCat" style="width:100%;padding:8px;"><option '+(p.cat=="Honige"?"selected":"")+'>Honige</option><option '+(p.cat=="Imkergut"?"selected":"")+'>Imkergut</option><option '+(p.cat=="Kerzen"?"selected":"")+'>Kerzen</option></select><br><br>Position:<br><input id="editPos" type="number" value="'+(p.pos||999)+'" style="width:100%;padding:8px;"><br><br><button class="pay" onclick="saveProductEdit()">💾 Speichern</button><br><br><button class="listbtn" onclick="showPortfolio()">Abbrechen</button>';
+salesContent.innerHTML='<h2>Produkt bearbeiten</h2><b>'+p.name+'</b><br>ID: '+p.id+'<br><br>Kategorie:<br><select id="editCat" style="width:100%;padding:8px;"><option '+(p.cat=="Honige"?"selected":"")+'>Honige</option><option '+(p.cat=="Imkergut"?"selected":"")+'>Imkergut</option><option '+(p.cat=="Kerzen"?"selected":"")+'>Kerzen</option></select><br><br>Position:<br><input id="editPos" type="number" value="'+(p.pos||999)+'" style="width:100%;padding:8px;"><br><br><button class="pay" onclick="saveProductEdit()">💾 Speichern</button><br><br><button class="listbtn" onclick="showPortfolio()">Abbrechen</button>';
 
 salesModal.classList.add('open');
 }
