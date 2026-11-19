@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Imkereikasse V3.29</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#f4f1ea}
+header{background:#1e293b;color:#fff;padding:0;text-align:center;height:18px;overflow:hidden}header h6{margin:0;line-height:18px}
+.main{display:flex;gap:12px;padding:2px 12px 12px 12px}.left{flex:1}.right{width:340px;background:#fff;padding:12px;border-radius:12px}
+.cat{background:#fff;padding:12px;border-radius:12px;margin-bottom:12px;margin-top:0}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.btn{padding:12px;border:none;border-radius:10px;cursor:pointer;text-align:center}.honey-btn{background:#fff8dc;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:210px}.honey-glass{position:relative;display:flex;align-items:center;justify-content:center}.honey-glass img{display:block}.honey-glass.small img{width:90px;height:auto}.honey-glass.large img{width:140px;height:auto}
+.honey-glass.small{font-size:60px}.honey-glass.large{font-size:160px}.honey-label{position:absolute;left:50%;transform:translate(-50%,-50%);background:white;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:12px;text-align:center;line-height:1.1;padding:2px}.honey-glass.small .honey-label{top:76%}
+.honey-glass.large .honey-label{top:60%;width:75px;height:75px;font-size:16px}
+.honey-price{margin-top:6px;font-weight:bold}.more{width:100%;padding:10px;margin-top:8px}
+.h{background:#fef3c7}.i{background:#dcfce7}.k{background:#ffedd5}.row{display:flex;justify-content:space-between;margin:4px 0}
+.pay,.listbtn,.editbtn{width:100%;padding:14px;border:none;border-radius:10px;color:#fff;cursor:pointer}.pay{background:#16a34a}.editbtn{background:#f97316;margin-top:8px;margin-bottom:240px}.listbtn{background:#2563eb;margin-top:8px}
+.total{font-size:28px;font-weight:bold}.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5)}.modal.open{display:block}.modalbox{background:#fff;max-width:700px;margin:5% auto;padding:15px;border-radius:12px;max-height:80vh;overflow:auto}
+@media(max-width:900px){.main{flex-direction:column}.right{width:auto}}
+</style>
+</head>
+<body>
+<header><h6>🐝 Imkereikasse 3.29</h6></header>
+<div class="main">
+<div class="left" id="cats"></div>
+<div class="right">
+<h2>Warenkorb</h2>
+<div id="editInfo" style="display:none;background:#fed7aa;color:#9a3412;padding:8px;border-radius:8px;margin-bottom:8px;font-weight:bold;">📝 Bon wird bearbeitet</div><div id="cart"></div>
+<div id="total" class="total">0,00 €</div>
+<button class="pay" onclick="checkout()">✅ Bezahlt</button><button class="editbtn" onclick="editLastSale()">📝 Letzten Bon ändern</button>
+<button class="listbtn" onclick="showSales()">📋 Tagesliste</button>
+<hr>
+<div>Umsatz heute: <b id="umsatz">0,00 €</b></div>
+<div>Verkäufe: <b id="bons">0</b></div><div>Artikel: <b id="artikel">0</b></div><button class="listbtn" onclick="showInventory()">📊 Verkaufsübersicht</button><button class="listbtn" onclick="showPortfolio()">⚙️ Produktportfolio</button>
+</div></div>
+<div id="salesModal" class="modal"><div class="modalbox"><h2>Tagesliste</h2><div id="salesContent"></div><br><button onclick="closeSales()">Schließen</button></div></div><div id="confirmModal" class="modal"><div class="modalbox"><h3>Bon wirklich stornieren?</h3><br><button class="pay" onclick="confirmDelete()">Ja, stornieren</button><br><br><button class="listbtn" onclick="closeConfirm()">Abbrechen</button></div></div>
+<script>
+const defaultProducts=[
+{cat:'Honige',name:'Raps-Honig 250g',price:5,fav:false},{cat:'Honige',name:'Raps-Honig 500g',price:7,fav:true},{cat:'Honige',name:'Sommer-flüssig 250g',price:5,fav:false},{cat:'Honige',name:'Sommer-flüssig 500g',price:8,fav:true},{cat:'Honige',name:'Akazie-flüssig 250g',price:6,fav:false},{cat:'Honige',name:'Akazie-flüssig 500g',price:9,fav:true},{cat:'Honige',name:'Obstblüte-cremig 250g',price:5,fav:false},{cat:'Honige',name:'Obstblüte-cremig 500g',price:8,fav:true},{cat:'Honige',name:'Sommer-cremig 250g',price:5,fav:false},{cat:'Honige',name:'Sommer-cremig 500g',price:8,fav:false},{cat:'Honige',name:'Kastanie-flüssig 250g',price:6,fav:false},
+{cat:'Imkergut',name:'Handcreme',price:6,fav:true},
+{cat:'Imkergut',name:'Propolino Lippenstift',price:4,fav:true},
+{cat:'Imkergut',name:'Lippenbalsam',price:4.5,fav:true},
+{cat:'Imkergut',name:'Bonbons',price:2.5,fav:true},
+{cat:'Imkergut',name:'Propolis Tinktur OHNE Alkohol',price:12,fav:true},  
+{cat:'Imkergut',name:'Propolis Tinktur MIT Alkohol',price:12,fav:true},
+
+  
+{cat:'Imkergut',name:'Gelee-Royal Creme groß',price:12,fav:true},
+
+
+{cat:'Imkergut',name:'Propolis Honig Creme groß',price:12,fav:false},
+  
+
+
+
+
+{cat:'Imkergut',name:'Gelee-Royal Creme klein',price:2.5,fav:false},
+
+
+{cat:'Imkergut',name:'Propolis Salbe Naturell klein',price:2.5,fav:false},
+{cat:'Imkergut',name:'Propolis Salbe Naturell groß',price:12,fav:true},
+
+{cat:'Imkergut',name:'Fußcreme',price:25,fav:false},
+
+  
+{cat:'Imkergut',name:'Seife fest mit Honig',price:3,fav:false},
+{cat:'Imkergut',name:'Seife fest mit Propolis',price:3,fav:false},
+{cat:'Imkergut',name:'Seife flüssig',price:6,fav:false},
+{cat:'Imkergut',name:'Körpercreme',price:12,fav:false},  
+
+{cat:'Imkergut',name:'Holz&Lederbalsam Bienenwachs',price:14,fav:false},
+{cat:'Imkergut',name:'Bienenwachs',price:7,fav:false},
+
+{cat:'Imkergut',name:'Roh-Propolis',price:25,fav:false},  
+{cat:'Imkergut',name:'Eierlikör',price:12,fav:false},
+  
+{cat:'Kerzen',name:'Tannenbaum klein',price:7,fav:true},{cat:'Kerzen',name:'Tannenbaum groß',price:11,fav:true},{cat:'Kerzen',name:'Engel',price:4,fav:true},{cat:'Kerzen',name:'Bienenkorb',price:4,fav:false},{cat:'Kerzen',name:'Gerollte Kerze',price:5,fav:true},{cat:'Kerzen',name:'Rose',price:3,fav:false},{cat:'Kerzen',name:'Stumpfenkerze mit Stern',price:7,fav:false},{cat:'Kerzen',name:'Stumpfenkerze mit Glocke',price:11,fav:false},{cat:'Kerzen',name:'Zapfen-Kerze',price:7,fav:false},{cat:'Kerzen',name:'Großer Stern',price:12,fav:false},{cat:'Kerzen',name:'Geschenkkorb',price:3,fav:false},{cat:'Kerzen',name:'Tischkerze gedreht gegossen',price:4,fav:false},{cat:'Kerzen',name:'Gedrehte Kerze klein',price:3,fav:false},{cat:'Kerzen',name:'Gedrehte Kerze mittel',price:6,fav:false},{cat:'Kerzen',name:'Gedrehte Kerze groß',price:10,fav:false},{cat:'Kerzen',name:'Gedrehte Tischkerze',price:3,fav:false}
+];
+
+let products=JSON.parse(localStorage.getItem('products_v329')||'null');
+
+if(!products){
+products=JSON.parse(JSON.stringify(defaultProducts));
+localStorage.setItem('products_v329',JSON.stringify(products));
+}
+
+let cart=[];let expanded={};let sales=JSON.parse(localStorage.getItem('sales_v31')||'[]');let editingSale=null;let editProductIndex=null;
+
+const euro=v=>v.toFixed(2).replace('.',',')+' €';
+
+function saveProducts(){
+localStorage.setItem('products_v329',JSON.stringify(products));
+}function honeyButtonHtml(p){const is250=p.name.includes('250g');let label=p.name.replace(' 250g','').replace(' 500g','').replaceAll('-','<br>');return '<div class="honey-glass '+(is250?'small':'large')+'"><img src="'+(is250?'honig250.png':'honig500.png')+'"><div class="honey-label">'+label+'</div></div>';}
+
+function render(){if(document.getElementById('editInfo'))document.getElementById('editInfo').style.display=editingSale!==null?'block':'none';const el=document.getElementById('cats');el.innerHTML='';[['Honige','h'],['Imkergut','i'],['Kerzen','k']].forEach(([c,cl])=>{const box=document.createElement('div');box.className='cat';box.innerHTML='<h2>'+c+'</h2><div class="grid"></div>';const g=box.querySelector('.grid');products.filter(p=>p.cat===c&&p.fav&&p.active!==false).sort((a,b)=>(a.pos||999)-(b.pos||999)).forEach(p=>{const b=document.createElement('button');if(c==='Honige'){b.className='btn honey-btn';b.innerHTML=honeyButtonHtml(p);}else{b.className='btn '+cl;b.innerHTML='<b>'+p.name+'</b><br>'+euro(p.price);}b.onclick=()=>add(p);g.appendChild(b)});const other=products.filter(p=>p.cat===c&&!p.fav&&p.active!==false).sort((a,b)=>(a.pos||999)-(b.pos||999));if(other.length){const m=document.createElement('button');m.className='more';m.textContent=expanded[c]?'▲ Weitere Produkte':'▼ Weitere Produkte ('+other.length+')';m.onclick=()=>{expanded[c]=!expanded[c];render();};box.appendChild(m);if(expanded[c]){const hg=document.createElement('div');hg.className='grid';other.forEach(p=>{const b=document.createElement('button');if(c==='Honige'){b.className='btn honey-btn';b.innerHTML=honeyButtonHtml(p);}else{b.className='btn '+cl;b.innerHTML='<b>'+p.name+'</b><br>'+euro(p.price);}b.onclick=()=>add(p);hg.appendChild(b)});box.appendChild(hg);}}el.appendChild(box)});renderCart();stats();}
+function editLastSale(){if(!sales.length)return alert('Kein Bon vorhanden');editingSale=sales.length-1;cart=JSON.parse(JSON.stringify(sales[editingSale].items));document.getElementById('editInfo').style.display='block';renderCart();}
+function add(p){const e=cart.find(x=>x.name===p.name);if(e)e.qty++;else cart.push({...p,qty:1});renderCart();}
+function qty(n,d){const e=cart.find(x=>x.name===n);e.qty+=d;if(e.qty<=0)cart=cart.filter(x=>x.name!==n);renderCart();}
+function renderCart(){let s=0;document.getElementById('cart').innerHTML=cart.map(i=>{s+=i.qty*i.price;return `<div class="row"><span>${i.qty}x ${i.name} (${euro(i.price)})
+</span><span><button onclick="qty('${i.name}',-1)">-</button><button onclick="qty('${i.name}',1)">+</button></span></div>`}).join('');document.getElementById('total').textContent=euro(s);}
+function checkout(){if(!cart.length)return;const total=cart.reduce((a,b)=>a+b.qty*b.price,0);if(editingSale!==null){sales[editingSale]={time:new Date().toLocaleTimeString('de-DE'),total:total,items:JSON.parse(JSON.stringify(cart))};editingSale=null;document.getElementById('editInfo').style.display='none';localStorage.setItem('sales_v31',JSON.stringify(sales));cart=[];expanded={};render();return;}sales.push({time:new Date().toLocaleTimeString('de-DE'),total:total,items:JSON.parse(JSON.stringify(cart))});localStorage.setItem('sales_v31',JSON.stringify(sales));cart=[];expanded={};render();}
+function stats(){const u=sales.filter(s=>!s.storno).reduce((a,b)=>a+b.total,0);let artikelAnzahl=0;sales.filter(sale=>!sale.storno).forEach(sale=>{if(sale.items){sale.items.forEach(item=>{artikelAnzahl+=item.qty;});}});umsatz.textContent=euro(u);bons.textContent=sales.filter(s=>!s.storno).length;document.getElementById('artikel').textContent=artikelAnzahl;}
+function showSales(){const gesamt=sales.filter(s=>!s.storno).reduce((a,b)=>a+b.total,0);salesContent.innerHTML=(sales.length?sales.map((s,i)=>{let artikel='';if(s.items){artikel=s.items.map(item=>item.qty+'x '+item.name+' ('+euro(item.price)+') = '+euro(item.qty*item.price)).join('<br>');}return `<div><strong>${i+1}. ${s.time}</strong> - ${euro(s.total)}${s.storno?'<br><span style="color:red;font-weight:bold;">❌ STORNIERT</span><br><br><button style="background:#16a34a;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="restoreSale('+i+')">↩️ Storno aufheben</button>':''}<br><br>${artikel}${!s.storno?'<br><br><button style="background:red;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="deleteSale('+i+')">🗑️ Stornieren</button>':''}</div><hr>`;}).join(''):'Keine Verkäufe vorhanden')+'<hr><h3>Gesamtumsatz: '+euro(gesamt)+'</h3>';salesModal.classList.add('open');}
+let deleteIndex=null;function closeSales(){salesModal.classList.remove('open');}function deleteSale(index){deleteIndex=index;document.getElementById('confirmModal').classList.add('open');}function closeConfirm(){document.getElementById('confirmModal').classList.remove('open');deleteIndex=null;}function confirmDelete(){if(deleteIndex===null)return;sales[deleteIndex].storno=true;localStorage.setItem('sales_v31',JSON.stringify(sales));document.getElementById('confirmModal').classList.remove('open');deleteIndex=null;stats();showSales();}function restoreSale(index){sales[index].storno=false;localStorage.setItem('sales_v31',JSON.stringify(sales));stats();showSales();}
+
+
+function showPortfolio(){let html='<h2>Produktportfolio</h2>';products.forEach((p,i)=>{html+='<div style="border-bottom:1px solid #ddd;padding:8px 0;"><b>'+p.name+'</b><br>Kategorie: '+p.cat+'<br>Position: '+(p.pos||999)+'<br>Preis: '+euro(p.price)+'<br>Favorit: '+(p.fav?'✅ Ja':'❌ Nein')+'<br>Aktiv: '+(p.active===false?'❌ Nein':'✅ Ja')+'<br><br><button style="background:#2563eb;color:white;border:none;padding:6px 10px;border-radius:6px;margin-right:5px;" onclick="toggleFav('+i+')">⭐ Favorit</button><button style="background:#f97316;color:white;border:none;padding:6px 10px;border-radius:6px;margin-right:5px;" onclick="toggleActive('+i+')">👁 Sichtbarkeit</button><button style="background:#16a34a;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="editProduct('+i+')">✏️ Bearbeiten</button></div>';});salesContent.innerHTML=html;salesModal.classList.add('open');}
+
+function toggleFav(index){products[index].fav=!products[index].fav;saveProducts();render();showPortfolio();}
+
+function toggleActive(index){products[index].active=products[index].active===false?true:false;saveProducts();render();showPortfolio();}
+function editProduct(index){
+editProductIndex=index;
+let p=products[index];
+
+salesContent.innerHTML='<h2>Produkt bearbeiten</h2><b>'+p.name+'</b><br><br>Kategorie:<br><select id="editCat" style="width:100%;padding:8px;"><option '+(p.cat=="Honige"?"selected":"")+'>Honige</option><option '+(p.cat=="Imkergut"?"selected":"")+'>Imkergut</option><option '+(p.cat=="Kerzen"?"selected":"")+'>Kerzen</option></select><br><br>Position:<br><input id="editPos" type="number" value="'+(p.pos||999)+'" style="width:100%;padding:8px;"><br><br><button class="pay" onclick="saveProductEdit()">💾 Speichern</button><br><br><button class="listbtn" onclick="showPortfolio()">Abbrechen</button>';
+
+salesModal.classList.add('open');
+}
+
+function saveProductEdit(){
+if(editProductIndex===null)return;
+
+products[editProductIndex].cat=document.getElementById('editCat').value;
+products[editProductIndex].pos=parseInt(document.getElementById('editPos').value)||999;
+
+saveProducts();
+
+render();
+showPortfolio();
+}
+
+function showInventory(){
+let inventory={};sales.filter(sale=>!sale.storno).forEach(sale=>{if(sale.items){sale.items.forEach(item=>{if(!inventory[item.name]){inventory[item.name]={qty:0,price:item.price};}inventory[item.name].qty+=item.qty;});}});let html='<div style="display:flex;font-weight:bold;border-bottom:2px solid #ccc;padding-bottom:4px;margin-bottom:4px;"><div style="flex:4;">Artikel</div><div style="flex:1;text-align:right;">Menge</div><div style="flex:1.5;text-align:right;">Preis</div><div style="flex:1.5;text-align:right;">Umsatz</div></div>';let totalItems=0;Object.keys(inventory).sort().forEach(name=>{totalItems+=inventory[name].qty;html+='<div style="display:flex;border-bottom:1px solid #eee;padding:3px 0;"><div style="flex:4;">'+name+'</div><div style="flex:1;text-align:right;">'+inventory[name].qty+'</div><div style="flex:1.5;text-align:right;">'+euro(inventory[name].price)+'</div><div style="flex:1.5;text-align:right;">'+euro(inventory[name].qty*inventory[name].price)+'</div></div>';});const gesamt=sales.filter(s=>!s.storno).reduce((a,b)=>a+b.total,0);html+='<hr><strong>Gesamt verkauft: '+totalItems+' Artikel</strong><br><strong>Gesamtumsatz: '+euro(gesamt)+'</strong>';salesContent.innerHTML=html;salesModal.classList.add('open');}
+function resetProducts(){
+localStorage.removeItem('products_v329');
+location.reload();
+}
+
+render();
+</script></body></html>
