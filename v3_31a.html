@@ -207,17 +207,35 @@ inventory[item.name].umsatz+=item.qty*item.price;
 
 let html='<h2>Verkaufsübersicht</h2>';
 
+html+='<div style="max-height:500px;overflow-y:auto;">';
+
+html+='<table style="width:100%;border-collapse:collapse;">';
+
+html+='<thead style="position:sticky;top:0;background:white;z-index:10;">';
+html+='<tr>';
+html+='<th style="text-align:left;padding:8px;border-bottom:2px solid #333;">Artikel</th>';
+html+='<th style="text-align:center;padding:8px;border-bottom:2px solid #333;">Menge</th>';
+html+='<th style="text-align:right;padding:8px;border-bottom:2px solid #333;">Umsatz</th>';
+html+='</tr>';
+html+='</thead>';
+
+html+='<tbody>';
+
 Object.keys(inventory)
 .sort((a,b)=>inventory[b].umsatz-inventory[a].umsatz)
 .forEach(name=>{
 
-html+='<div style="border-bottom:1px solid #ddd;padding:8px 0;">'
-+'<b>'+name+'</b><br>'
-+'Verkauft: '+inventory[name].qty+' Stück<br>'
-+'Umsatz: '+euro(inventory[name].umsatz)
-+'</div>';
+html+='<tr>';
+html+='<td style="padding:6px;border-bottom:1px solid #ddd;">'+name+'</td>';
+html+='<td style="padding:6px;text-align:center;border-bottom:1px solid #ddd;">'+inventory[name].qty+'</td>';
+html+='<td style="padding:6px;text-align:right;border-bottom:1px solid #ddd;">'+euro(inventory[name].umsatz)+'</td>';
+html+='</tr>';
 
 });
+
+html+='</tbody>';
+html+='</table>';
+html+='</div>';
 
 salesContent.innerHTML=html;
 salesModal.classList.add('open');
