@@ -153,6 +153,24 @@ let cart=[];let expanded={};let sales=JSON.parse(localStorage.getItem('sales_v31
 
 const euro=v=>v.toFixed(2).replace('.',',')+' €';
 
+function getItemPrice(item){
+
+if(item.isGift){
+return 0;
+}
+
+if(item.discountType==='EURO'){
+return Math.max(0,item.price-(item.discountValue||0));
+}
+
+if(item.discountType==='PERCENT'){
+return item.price*(1-(item.discountValue||0)/100);
+}
+
+return item.price;
+
+}
+
 function saveProducts(){
 localStorage.setItem('products_v329',JSON.stringify(products));
 }function honeyButtonHtml(p){const is250=p.name.includes('250g');let label=p.name.replace(' 250g','').replace(' 500g','').replaceAll('-','<br>');return '<div class="honey-glass '+(is250?'small':'large')+'"><img src="'+(is250?'honig250.png':'honig500.png')+'"><div class="honey-label">'+label+'</div></div>';}
@@ -302,8 +320,7 @@ let s=0;
 
 document.getElementById('cart').innerHTML=cart.map(function(i){
 
-var preis=i.isGift?0:Math.max(0,i.price-(i.discountValue||0));
-
+var preis=getItemPrice(i);
 s+=i.qty*preis;
 
 var text=i.qty+'x '+i.name;
@@ -330,7 +347,7 @@ if(!cart.length)return;
 
 const total=cart.reduce((sum,item)=>{
 
-const preis=item.isGift?0:item.price;
+const preis=getItemPrice(item);
 
 return sum+(item.qty*preis);
 
@@ -378,7 +395,7 @@ render();
 function stats(){const u=sales.filter(s=>!s.storno).reduce((a,b)=>a+b.total,0);let artikelAnzahl=0;sales.filter(sale=>!sale.storno).forEach(sale=>{if(sale.items){sale.items.forEach(item=>{artikelAnzahl+=item.qty;});}});umsatz.textContent=euro(u);bons.textContent=sales.filter(s=>!s.storno).length;document.getElementById('artikel').textContent=artikelAnzahl;}
 function showSales(){const gesamt=sales.filter(s=>!s.storno).reduce((a,b)=>a+b.total,0);salesContent.innerHTML=(sales.length?sales.map((s,i)=>{let artikel='';if(s.items){artikel=s.items.map(item=>{
 
-let preis=item.isGift?0:item.price;
+let preis=getItemPrice(item);
 
 let text=item.qty+'x '+item.name;
 
@@ -484,7 +501,7 @@ umsatz:0
 }
 
 inventory[item.name].qty+=item.qty;
-inventory[item.name].umsatz+=item.qty*(item.isGift?0:item.price);
+inventory[item.name].umsatz+=item.qty*getItemPrice(item);
 
 });
 
