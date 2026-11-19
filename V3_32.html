@@ -153,43 +153,27 @@ renderCart();
 
 }
 function renderCart(){
-
 let s=0;
 
-document.getElementById('cart').innerHTML=cart.map(i=>{
+document.getElementById('cart').innerHTML=cart.map(function(i){
 
-const preis=i.isGift?0:i.price;
+var preis=i.isGift?0:i.price;
 
 s+=i.qty*preis;
 
-return `<div class="row">
+var text=i.qty+'x '+i.name;
 
-<span>
+if(i.isGift){
+text+=' 🎁';
+}
 
-${i.qty}x ${i.name}
+text+=' ('+euro(preis)+')';
 
-${i.isGift?' 🎁':''}
-
-(${euro(preis)})
-
-</span>
-
-<span>
-
-<button onclick="qty('${i.name}',-1)">-</button>
-
-<button onclick="qty('${i.name}',1)">+</button>
-
-<button onclick="toggleGift('${i.name}')">🎁</button>
-
-</span>
-
-</div>`;
+return '<div class="row"><span>'+text+'</span><span><button onclick="qty(\''+i.name+'\',-1)">-</button><button onclick="qty(\''+i.name+'\',1)">+</button><button onclick="toggleGift(\''+i.name+'\')">🎁</button></span></div>';
 
 }).join('');
 
 document.getElementById('total').textContent=euro(s);
-
 }
 function checkout(){if(!cart.length)return;const total=cart.reduce((a,b)=>a+b.qty*b.price,0);if(editingSale!==null){sales[editingSale]={time:new Date().toLocaleTimeString('de-DE'),total:total,items:JSON.parse(JSON.stringify(cart))};editingSale=null;document.getElementById('editInfo').style.display='none';localStorage.setItem('sales_v31',JSON.stringify(sales));cart=[];expanded={};render();return;}sales.push({time:new Date().toLocaleTimeString('de-DE'),total:total,items:JSON.parse(JSON.stringify(cart))});localStorage.setItem('sales_v31',JSON.stringify(sales));cart=[];expanded={};render();}
 function stats(){const u=sales.filter(s=>!s.storno).reduce((a,b)=>a+b.total,0);let artikelAnzahl=0;sales.filter(sale=>!sale.storno).forEach(sale=>{if(sale.items){sale.items.forEach(item=>{artikelAnzahl+=item.qty;});}});umsatz.textContent=euro(u);bons.textContent=sales.filter(s=>!s.storno).length;document.getElementById('artikel').textContent=artikelAnzahl;}
