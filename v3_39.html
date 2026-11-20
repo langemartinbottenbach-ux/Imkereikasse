@@ -150,9 +150,17 @@ Abbrechen
 
 <h3>🏪 Verkaufsstelle auswählen</h3>
 
+<button
+class="listbtn"
+style="background:#16a34a;"
+onclick="setSalesLocation('ALLE')">
+🌍 Alle Verkaufsstellen
+</button>
+
 <button class="listbtn" onclick="setSalesLocation('Anja & Markus')">
 Anja & Markus
 </button>
+
 
 <button class="listbtn" onclick="setSalesLocation('Iris & Madddin')">
 Iris & Madddin
@@ -267,8 +275,10 @@ function render(){
 
 const headerInfo=document.getElementById('salesLocationHeader');
 if(headerInfo){
-headerInfo.textContent=activeSalesLocation;
-}
+headerInfo.textContent=
+activeSalesLocation==='ALLE'
+? '🌍 Alle Verkaufsstellen'
+: activeSalesLocation;}
 
 if(document.getElementById('editInfo'))document.getElementById('editInfo').style.display=editingSale!==null?'block':'none';const el=document.getElementById('cats');el.innerHTML='';[['Honige','h'],['Imkergut','i'],['Kerzen','k']].forEach(([c,cl])=>{const box=document.createElement('div');box.className='cat';box.innerHTML='<h2>'+c+'</h2><div class="grid"></div>';const g=box.querySelector('.grid');products.filter(p=>p.cat===c&&p.fav&&p.active!==false).sort((a,b)=>(a.pos||999)-(b.pos||999)).forEach(p=>{const b=document.createElement('button');if(c==='Honige'){b.className='btn honey-btn';b.innerHTML=honeyButtonHtml(p);}else{b.className='btn '+cl;b.innerHTML='<b>'+p.name+'</b><br>'+euro(p.price);}b.onclick=()=>add(p);g.appendChild(b)});const other=products.filter(p=>p.cat===c&&!p.fav&&p.active!==false).sort((a,b)=>(a.pos||999)-(b.pos||999));if(other.length){const m=document.createElement('button');m.className='more';m.textContent=expanded[c]?'▲ Weitere Produkte':'▼ Weitere Produkte ('+other.length+')';m.onclick=()=>{expanded[c]=!expanded[c];render();};box.appendChild(m);if(expanded[c]){const hg=document.createElement('div');hg.className='grid';other.forEach(p=>{const b=document.createElement('button');if(c==='Honige'){b.className='btn honey-btn';b.innerHTML=honeyButtonHtml(p);}else{b.className='btn '+cl;b.innerHTML='<b>'+p.name+'</b><br>'+euro(p.price);}b.onclick=()=>add(p);hg.appendChild(b)});box.appendChild(hg);}}el.appendChild(box)});renderCart();stats();}
 function getLastSaleIndex(){
@@ -614,7 +624,10 @@ function stats(){
 const filteredSales=sales.filter(
 sale =>
 !sale.storno &&
+(
+activeSalesLocation==='ALLE' ||
 sale.salesLocation===activeSalesLocation
+)
 );
 
 const u=filteredSales.reduce(
@@ -642,8 +655,12 @@ document.getElementById('artikel')
 function showSales(){
 
 const filteredSales=sales.filter(
-s => !s.storno &&
+s =>
+!s.storno &&
+(
+activeSalesLocation==='ALLE' ||
 s.salesLocation===activeSalesLocation
+)
 );
 
 const gesamt=filteredSales.reduce(
