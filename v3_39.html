@@ -721,23 +721,14 @@ salesModal.classList.add('open');
 
 function changeSalesLocation(){
 
-const neueVerkaufsstelle=prompt(
+const neueVerkaufsstelle = prompt(
 'Verkaufsstelle auswählen:\n\nAnja & Markus\nIris & Madddin\nMama\nBüro Landau\n\noder eigenen Namen eingeben',
-activeSalesLocation
-);
-
-Anja & Markus
-Iris & Madddin
-Mama
-Büro Landau
-
-oder eigenen Namen eingeben',
 activeSalesLocation
 );
 
 if(!neueVerkaufsstelle)return;
 
-activeSalesLocation=neueVerkaufsstelle;
+activeSalesLocation = neueVerkaufsstelle;
 
 localStorage.setItem(
 'activeSalesLocation',
@@ -745,7 +736,6 @@ activeSalesLocation
 );
 
 render();
-
 }
 
 function resetProducts(){
