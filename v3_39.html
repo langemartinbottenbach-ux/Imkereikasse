@@ -299,6 +299,28 @@ return -1;
 
 function editLastSale(){
 
+if(activeSalesLocation==='ALLE'){
+alert('Bitte zuerst eine Verkaufsstelle auswählen.');
+return;
+}
+
+if(!sales.length)return alert('Kein Bon vorhanden');
+
+editingSale=getLastSaleIndex();
+
+if(editingSale===-1){
+alert('Für diese Verkaufsstelle ist kein Bon vorhanden');
+return;
+}
+
+cart=JSON.parse(JSON.stringify(sales[editingSale].items));
+
+document.getElementById('editInfo').style.display='block';
+
+renderCart();
+
+}
+
 if(!sales.length)return alert('Kein Bon vorhanden');
 
 editingSale=getLastSaleIndex();
@@ -318,6 +340,36 @@ renderCart();
 
 function deleteLastSale(){
 
+if(activeSalesLocation==='ALLE'){
+alert('Bitte zuerst eine Verkaufsstelle auswählen.');
+return;
+}
+
+const index=getLastSaleIndex();
+
+if(index===-1){
+
+alert('Für diese Verkaufsstelle ist kein Bon vorhanden');
+
+return;
+
+}
+
+sales[index].storno=true;
+
+localStorage.setItem('sales_v31',JSON.stringify(sales));
+
+alert(
+'Der letzte Bon der Verkaufsstelle "' +
+activeSalesLocation +
+'" wurde storniert.'
+);
+
+stats();
+
+render();
+
+}
 const index=getLastSaleIndex();
 
 if(index===-1){
@@ -654,13 +706,18 @@ document.getElementById('artikel')
 }
 function showSales(){
 
-const filteredSales=sales.filter(
+const filteredSales=sales
+.filter(
 s =>
 activeSalesLocation==='ALLE' ||
 s.salesLocation===activeSalesLocation
-);
+)
+.slice()
+.reverse();
 
-const gesamt=filteredSales.reduce(
+const gesamt=filteredSales
+.filter(s=>!s.storno)
+.reduce(
 (a,b)=>a+b.total,
 0
 );
@@ -755,8 +812,9 @@ const gesamt=sales
 salesContent.innerHTML=
 sales
 .filter(s=>!s.storno)
+.slice()
+.reverse()
 .map((s,i)=>{
-
 let artikel='';
 
 if(s.items){
