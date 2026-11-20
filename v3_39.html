@@ -682,8 +682,8 @@ return text;
 
 }).join('<br>');}return `<div><strong>${i+1}. ${s.time}</strong>
 <br>
-🏪 ${s.salesLocation || 'Unbekannt'} - ${euro(s.total)}${s.storno?'<br><span style="color:red;font-weight:bold;">❌ STORNIERT</span><br><br><button style="background:#16a34a;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="restoreSale('+sales.indexOf(s)+')"
->↩️ Storno aufheben</button>':''}<br><br>${artikel}${!s.storno?'<br><br><button style="background:red;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="deleteSale('+sales.indexOf(s)+')">🗑️ Stornieren</button>':''}</div><hr>`;}).join(''):'Keine Verkäufe vorhanden')+'<hr><h3>Gesamtumsatz: '+euro(gesamt)+'</h3>';salesModal.classList.add('open');}
+🏪 ${s.salesLocation || 'Unbekannt'} - ${euro(s.total)}${s.storno?'<br><span style="color:red;font-weight:bold;">❌ STORNIERT</span><br><br><button style="background:#16a34a;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="restoreSale(${sales.indexOf(s)})"
+>↩️ Storno aufheben</button>':''}<br><br>${artikel}${!s.storno?'<br><br><button style="background:red;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="deleteSale(${sales.indexOf(s)})">🗑️ Stornieren</button>':''}</div><hr>`;}).join(''):'Keine Verkäufe vorhanden')+'<hr><h3>Gesamtumsatz: '+euro(gesamt)+'</h3>';salesModal.classList.add('open');}
 let deleteIndex=null;
 
 function showAllSales(){
