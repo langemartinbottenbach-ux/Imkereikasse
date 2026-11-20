@@ -1087,12 +1087,20 @@ location.reload();
 
 function resetAllData(){
 
-if(!confirm(
-'Wirklich ALLE Verkaufsdaten löschen?
-
-Verkäufe, Tageslisten, Umsatz und Statistiken werden zurückgesetzt.'
-)){
+if(!confirm('Wirklich ALLE Verkaufsdaten löschen?\n\nVerkäufe, Tageslisten, Umsatz und Statistiken werden zurückgesetzt.')){
 return;
+}
+
+sales=[];
+cart=[];
+editingSale=null;
+
+localStorage.removeItem('sales_v31');
+
+render();
+
+alert('Alle Verkaufsdaten wurden gelöscht.');
+
 }
 
 sales=[];
