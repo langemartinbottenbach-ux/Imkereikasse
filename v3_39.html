@@ -304,22 +304,7 @@ alert('Bitte zuerst eine Verkaufsstelle auswählen.');
 return;
 }
 
-if(!sales.length)return alert('Kein Bon vorhanden');
 
-editingSale=getLastSaleIndex();
-
-if(editingSale===-1){
-alert('Für diese Verkaufsstelle ist kein Bon vorhanden');
-return;
-}
-
-cart=JSON.parse(JSON.stringify(sales[editingSale].items));
-
-document.getElementById('editInfo').style.display='block';
-
-renderCart();
-
-}
 
 if(!sales.length)return alert('Kein Bon vorhanden');
 
@@ -876,12 +861,6 @@ if(editingSale===deleteIndex){
 editingSale=null;
 cart=[];
 document.getElementById('editInfo').style.display='none';
-}
-
-if(editingSale===deleteIndex){
-editingSale=null;
-document.getElementById('editInfo').style.display='none';
-cart=[];
 }
 localStorage.setItem('sales_v31',JSON.stringify(sales));document.getElementById('confirmModal').classList.remove('open');deleteIndex=null;stats();showSales();}function restoreSale(index){sales[index].storno=false;localStorage.setItem('sales_v31',JSON.stringify(sales));stats();showSales();}
 
