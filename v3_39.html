@@ -703,11 +703,31 @@ ${artikel}
 
 <br><br>
 
+${
+s.storno
+?
+`
+<div style="color:red;font-weight:bold;">
+❌ STORNIERT
+</div>
+
+<br>
+
+<button
+style="background:#16a34a;color:white;border:none;padding:6px 10px;border-radius:6px;"
+onclick="restoreSale(${sales.indexOf(s)})">
+↩️ Storno aufheben
+</button>
+`
+:
+`
 <button
 style="background:red;color:white;border:none;padding:6px 10px;border-radius:6px;"
 onclick="deleteSale(${sales.indexOf(s)})">
 🗑️ Stornieren
 </button>
+`
+}
 
 </div>
 <hr>
