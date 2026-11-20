@@ -666,7 +666,7 @@ s.salesLocation===activeSalesLocation
 const gesamt=filteredSales.reduce(
 (a,b)=>a+b.total,
 0
-);salesContent.innerHTML=(filteredSales.length?filteredSales.map((s,i)=>{let artikel='';if(s.items){artikel=s.items.map(item=>{
+);salesContent.innerHTML=(filteredSales.length?filteredSales.map((s)=>{let artikel='';if(s.items){artikel=s.items.map(item=>{
 
 let preis=getItemPrice(item);
 
@@ -682,7 +682,8 @@ return text;
 
 }).join('<br>');}return `<div><strong>${i+1}. ${s.time}</strong>
 <br>
-🏪 ${s.salesLocation || 'Unbekannt'} - ${euro(s.total)}${s.storno?'<br><span style="color:red;font-weight:bold;">❌ STORNIERT</span><br><br><button style="background:#16a34a;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="restoreSale('+i+')">↩️ Storno aufheben</button>':''}<br><br>${artikel}${!s.storno?'<br><br><button style="background:red;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="deleteSale('+i+')">🗑️ Stornieren</button>':''}</div><hr>`;}).join(''):'Keine Verkäufe vorhanden')+'<hr><h3>Gesamtumsatz: '+euro(gesamt)+'</h3>';salesModal.classList.add('open');}
+🏪 ${s.salesLocation || 'Unbekannt'} - ${euro(s.total)}${s.storno?'<br><span style="color:red;font-weight:bold;">❌ STORNIERT</span><br><br><button style="background:#16a34a;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="restoreSale('+sales.indexOf(s)+')"
+>↩️ Storno aufheben</button>':''}<br><br>${artikel}${!s.storno?'<br><br><button style="background:red;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="deleteSale('+sales.indexOf(s)+')">🗑️ Stornieren</button>':''}</div><hr>`;}).join(''):'Keine Verkäufe vorhanden')+'<hr><h3>Gesamtumsatz: '+euro(gesamt)+'</h3>';salesModal.classList.add('open');}
 let deleteIndex=null;
 
 function showAllSales(){
