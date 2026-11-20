@@ -181,7 +181,9 @@ Mama
 Büro Landau
 </button>
 
-<br><br>
+<button class="listbtn" onclick="setSalesLocation('🎄 Weihnachtsmarkt Obersimten 2026')">
+🎄 Weihnachtsmarkt Obersimten 2026
+</button>
 
 <button class="editbtn"
 style="margin-bottom:0;"
@@ -1087,7 +1089,15 @@ location.reload();
 
 function resetAllData(){
 
-if(!confirm('Wirklich ALLE Verkaufsdaten löschen?\n\nVerkäufe, Tageslisten, Umsatz und Statistiken werden zurückgesetzt.')){
+if(!confirm('ACHTUNG!\n\nAlle Verkaufsdaten löschen?')){
+return;
+}
+
+if(!confirm('Wirklich ALLE Verkäufe, Umsätze, Tageslisten und Statistiken löschen?')){
+return;
+}
+
+if(!confirm('LETZTE WARNUNG!\n\nDiese Aktion kann nicht rückgängig gemacht werden.\n\nJetzt endgültig löschen?')){
 return;
 }
 
