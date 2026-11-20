@@ -666,7 +666,7 @@ s.salesLocation===activeSalesLocation
 const gesamt=filteredSales.reduce(
 (a,b)=>a+b.total,
 0
-);salesContent.innerHTML=(filteredSales.length?filteredSales.map((s)=>{let artikel='';if(s.items){artikel=s.items.map(item=>{
+);salesContent.innerHTML=(filteredSales.length?filteredSales.map((s,i)=>{let artikel='';if(s.items){artikel=s.items.map(item=>{
 
 let preis=getItemPrice(item);
 
