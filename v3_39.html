@@ -131,6 +131,38 @@ Abbrechen
 </div>
 </div>
 
+<div id="salesLocationModal" class="modal">
+<div class="modalbox">
+
+<h3>🏪 Verkaufsstelle auswählen</h3>
+
+<button class="listbtn" onclick="setSalesLocation('Anja & Markus')">
+Anja & Markus
+</button>
+
+<button class="listbtn" onclick="setSalesLocation('Iris & Madddin')">
+Iris & Madddin
+</button>
+
+<button class="listbtn" onclick="setSalesLocation('Mama')">
+Mama
+</button>
+
+<button class="listbtn" onclick="setSalesLocation('Büro Landau')">
+Büro Landau
+</button>
+
+<br><br>
+
+<button class="editbtn"
+style="margin-bottom:0;"
+onclick="closeSalesLocation()">
+Abbrechen
+</button>
+
+</div>
+</div>
+
 <script>
 const defaultProducts=[
 {cat:'Honige',name:'Raps-Honig 250g',price:5,fav:false},{cat:'Honige',name:'Raps-Honig 500g',price:7,fav:true},{cat:'Honige',name:'Sommer-flüssig 250g',price:5,fav:false},{cat:'Honige',name:'Sommer-flüssig 500g',price:8,fav:true},{cat:'Honige',name:'Akazie-flüssig 250g',price:6,fav:false},{cat:'Honige',name:'Akazie-flüssig 500g',price:9,fav:true},{cat:'Honige',name:'Obstblüte-cremig 250g',price:5,fav:false},{cat:'Honige',name:'Obstblüte-cremig 500g',price:8,fav:true},{cat:'Honige',name:'Sommer-cremig 250g',price:5,fav:false},{cat:'Honige',name:'Sommer-cremig 500g',price:8,fav:false},{cat:'Honige',name:'Kastanie-flüssig 250g',price:6,fav:false},
@@ -719,22 +751,26 @@ salesContent.innerHTML=html;
 salesModal.classList.add('open');
 }
 
+
+
 function changeSalesLocation(){
+document.getElementById('salesLocationModal').classList.add('open');
+}
 
-const neueVerkaufsstelle = prompt(
-'Verkaufsstelle auswählen:\n\nAnja & Markus\nIris & Madddin\nMama\nBüro Landau\n\noder eigenen Namen eingeben',
-activeSalesLocation
-);
+function closeSalesLocation(){
+document.getElementById('salesLocationModal').classList.remove('open');
+}
 
-if(!neueVerkaufsstelle)return;
+function setSalesLocation(name){
 
-activeSalesLocation = neueVerkaufsstelle;
+activeSalesLocation=name;
 
 localStorage.setItem(
 'activeSalesLocation',
 activeSalesLocation
 );
 
+closeSalesLocation();
 render();
 }
 
