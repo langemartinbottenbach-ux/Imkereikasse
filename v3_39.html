@@ -60,6 +60,12 @@ onclick="showAllSales()">
 🌍 Alle Verkaufsstellen
 </button>
 
+<button
+class="listbtn"
+onclick="showSales()">
+🏪 Aktive Verkaufsstelle
+</button>
+
 <br><br><div id="salesContent"></div><br><button onclick="closeSales()">Schließen</button></div></div><div id="confirmModal" class="modal"><div class="modalbox"><h3>Bon wirklich stornieren?</h3><br><button class="pay" onclick="confirmDelete()">Ja, stornieren</button><br><br><button class="listbtn" onclick="closeConfirm()">Abbrechen</button></div></div>
 
 <div id="checkoutModal" class="modal">
@@ -603,7 +609,36 @@ expanded={};
 render();
 
 }
-function stats(){const u=sales.filter(s=>!s.storno).reduce((a,b)=>a+b.total,0);let artikelAnzahl=0;sales.filter(sale=>!sale.storno).forEach(sale=>{if(sale.items){sale.items.forEach(item=>{artikelAnzahl+=item.qty;});}});umsatz.textContent=euro(u);bons.textContent=sales.filter(s=>!s.storno).length;document.getElementById('artikel').textContent=artikelAnzahl;}
+function stats(){
+
+const filteredSales=sales.filter(
+sale =>
+!sale.storno &&
+sale.salesLocation===activeSalesLocation
+);
+
+const u=filteredSales.reduce(
+(a,b)=>a+b.total,
+0
+);
+
+let artikelAnzahl=0;
+
+filteredSales.forEach(sale=>{
+if(sale.items){
+sale.items.forEach(item=>{
+artikelAnzahl+=item.qty;
+});
+}
+});
+
+umsatz.textContent=euro(u);
+
+bons.textContent=filteredSales.length;
+
+document.getElementById('artikel')
+.textContent=artikelAnzahl;
+}
 function showSales(){
 
 const filteredSales=sales.filter(
@@ -859,6 +894,8 @@ salesModal.classList.add('open');
 
 
 
+let statsAllLocations=false;
+
 function changeSalesLocation(){
 document.getElementById('salesLocationModal').classList.add('open');
 }
@@ -878,6 +915,45 @@ activeSalesLocation
 
 closeSalesLocation();
 render();
+}
+
+function showAllLocationsStats(){
+
+statsAllLocations=true;
+
+const aktiveVerkaeufe=sales.filter(
+s=>!s.storno
+);
+
+const umsatzGesamt=
+aktiveVerkaeufe.reduce(
+(a,b)=>a+b.total,
+0
+);
+
+let artikelGesamt=0;
+
+aktiveVerkaeufe.forEach(sale=>{
+if(sale.items){
+sale.items.forEach(item=>{
+artikelGesamt+=item.qty;
+});
+}
+});
+
+umsatz.textContent=euro(umsatzGesamt);
+
+bons.textContent=aktiveVerkaeufe.length;
+
+document.getElementById('artikel')
+.textContent=artikelGesamt;
+}
+
+function showCurrentLocationStats(){
+
+statsAllLocations=false;
+
+stats();
 }
 
 function resetProducts(){
