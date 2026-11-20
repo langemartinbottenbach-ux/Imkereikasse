@@ -357,6 +357,18 @@ return;
 
 sales[index].storno=true;
 
+if(editingSale===index){
+editingSale=null;
+cart=[];
+document.getElementById('editInfo').style.display='none';
+}
+
+
+if(editingSale===index){
+editingSale=null;
+document.getElementById('editInfo').style.display='none';
+cart=[];
+}
 localStorage.setItem('sales_v31',JSON.stringify(sales));
 
 alert(
@@ -858,7 +870,20 @@ salesModal.classList.add('open');
 
 function closeSales(){
 salesModal.classList.remove('open');
-}function deleteSale(index){deleteIndex=index;document.getElementById('confirmModal').classList.add('open');}function closeConfirm(){document.getElementById('confirmModal').classList.remove('open');deleteIndex=null;}function confirmDelete(){if(deleteIndex===null)return;sales[deleteIndex].storno=true;localStorage.setItem('sales_v31',JSON.stringify(sales));document.getElementById('confirmModal').classList.remove('open');deleteIndex=null;stats();showSales();}function restoreSale(index){sales[index].storno=false;localStorage.setItem('sales_v31',JSON.stringify(sales));stats();showSales();}
+}function deleteSale(index){deleteIndex=index;document.getElementById('confirmModal').classList.add('open');}function closeConfirm(){document.getElementById('confirmModal').classList.remove('open');deleteIndex=null;}function confirmDelete(){if(deleteIndex===null)return;sales[deleteIndex].storno=true;
+
+if(editingSale===deleteIndex){
+editingSale=null;
+cart=[];
+document.getElementById('editInfo').style.display='none';
+}
+
+if(editingSale===deleteIndex){
+editingSale=null;
+document.getElementById('editInfo').style.display='none';
+cart=[];
+}
+localStorage.setItem('sales_v31',JSON.stringify(sales));document.getElementById('confirmModal').classList.remove('open');deleteIndex=null;stats();showSales();}function restoreSale(index){sales[index].storno=false;localStorage.setItem('sales_v31',JSON.stringify(sales));stats();showSales();}
 
 
 function showPortfolio(){let html='<h2>Produktportfolio</h2><button class="pay" onclick="newProduct()">➕ Neues Produkt</button><br><br>';products.forEach((p,i)=>{html+='<div style="border-bottom:1px solid #ddd;padding:8px 0;"><b>'+p.name+'</b><br>ID: '+p.id+'<br>Kategorie: '+p.cat+'<br>Position: '+(p.pos||999)+'<br>Preis: '+euro(p.price)+'<br>Favorit: '+(p.fav?'✅ Ja':'❌ Nein')+'<br>Aktiv: '+(p.active===false?'❌ Nein':'✅ Ja')+'<br><br><button style="background:#2563eb;color:white;border:none;padding:6px 10px;border-radius:6px;margin-right:5px;" onclick="toggleFav('+i+')">⭐ Favorit</button><button style="background:#f97316;color:white;border:none;padding:6px 10px;border-radius:6px;margin-right:5px;" onclick="toggleActive('+i+')">👁 Sichtbarkeit</button><button style="background:#16a34a;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="editProduct('+i+')">✏️ Bearbeiten</button></div>';});salesContent.innerHTML=html;salesModal.classList.add('open');}
