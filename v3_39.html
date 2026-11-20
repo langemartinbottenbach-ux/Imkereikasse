@@ -524,10 +524,10 @@ if(editingSale!==null){
 
 sales[editingSale]={
 time:new Date().toLocaleTimeString('de-DE'),
+salesLocation:activeSalesLocation,
 total:total,
 items:JSON.parse(JSON.stringify(cart))
 };
-
 editingSale=null;
 
 document.getElementById('editInfo').style.display='none';
@@ -549,6 +549,7 @@ return;
 
 sales.push({
 time:new Date().toLocaleTimeString('de-DE'),
+salesLocation:activeSalesLocation,
 total:total,
 items:JSON.parse(JSON.stringify(cart))
 });
@@ -580,7 +581,9 @@ text+=' ('+euro(preis)+') = '+euro(item.qty*preis);
 
 return text;
 
-}).join('<br>');}return `<div><strong>${i+1}. ${s.time}</strong> - ${euro(s.total)}${s.storno?'<br><span style="color:red;font-weight:bold;">❌ STORNIERT</span><br><br><button style="background:#16a34a;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="restoreSale('+i+')">↩️ Storno aufheben</button>':''}<br><br>${artikel}${!s.storno?'<br><br><button style="background:red;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="deleteSale('+i+')">🗑️ Stornieren</button>':''}</div><hr>`;}).join(''):'Keine Verkäufe vorhanden')+'<hr><h3>Gesamtumsatz: '+euro(gesamt)+'</h3>';salesModal.classList.add('open');}
+}).join('<br>');}return `<div><strong>${i+1}. ${s.time}</strong>
+<br>
+🏪 ${s.salesLocation || 'Unbekannt'} - ${euro(s.total)}${s.storno?'<br><span style="color:red;font-weight:bold;">❌ STORNIERT</span><br><br><button style="background:#16a34a;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="restoreSale('+i+')">↩️ Storno aufheben</button>':''}<br><br>${artikel}${!s.storno?'<br><br><button style="background:red;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="deleteSale('+i+')">🗑️ Stornieren</button>':''}</div><hr>`;}).join(''):'Keine Verkäufe vorhanden')+'<hr><h3>Gesamtumsatz: '+euro(gesamt)+'</h3>';salesModal.classList.add('open');}
 let deleteIndex=null;function closeSales(){salesModal.classList.remove('open');}function deleteSale(index){deleteIndex=index;document.getElementById('confirmModal').classList.add('open');}function closeConfirm(){document.getElementById('confirmModal').classList.remove('open');deleteIndex=null;}function confirmDelete(){if(deleteIndex===null)return;sales[deleteIndex].storno=true;localStorage.setItem('sales_v31',JSON.stringify(sales));document.getElementById('confirmModal').classList.remove('open');deleteIndex=null;stats();showSales();}function restoreSale(index){sales[index].storno=false;localStorage.setItem('sales_v31',JSON.stringify(sales));stats();showSales();}
 
 
