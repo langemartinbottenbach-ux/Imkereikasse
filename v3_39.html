@@ -295,6 +295,7 @@ return i;
 }
 
 return -1;
+
 }
 
 function editLastSale(){
@@ -367,31 +368,7 @@ stats();
 render();
 
 }
-const index=getLastSaleIndex();
 
-if(index===-1){
-
-alert('Für diese Verkaufsstelle ist kein Bon vorhanden');
-
-return;
-
-}
-
-sales[index].storno=true;
-
-localStorage.setItem('sales_v31',JSON.stringify(sales));
-
-alert(
-'Der letzte Bon der Verkaufsstelle "' +
-activeSalesLocation +
-'" wurde storniert.'
-);
-
-stats();
-
-render();
-
-}
 
 function add(p){
 
