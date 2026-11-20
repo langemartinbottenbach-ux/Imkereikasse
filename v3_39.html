@@ -656,11 +656,8 @@ function showSales(){
 
 const filteredSales=sales.filter(
 s =>
-!s.storno &&
-(
 activeSalesLocation==='ALLE' ||
 s.salesLocation===activeSalesLocation
-)
 );
 
 const gesamt=filteredSales.reduce(
