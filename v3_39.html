@@ -257,11 +257,32 @@ headerInfo.textContent=activeSalesLocation;
 }
 
 if(document.getElementById('editInfo'))document.getElementById('editInfo').style.display=editingSale!==null?'block':'none';const el=document.getElementById('cats');el.innerHTML='';[['Honige','h'],['Imkergut','i'],['Kerzen','k']].forEach(([c,cl])=>{const box=document.createElement('div');box.className='cat';box.innerHTML='<h2>'+c+'</h2><div class="grid"></div>';const g=box.querySelector('.grid');products.filter(p=>p.cat===c&&p.fav&&p.active!==false).sort((a,b)=>(a.pos||999)-(b.pos||999)).forEach(p=>{const b=document.createElement('button');if(c==='Honige'){b.className='btn honey-btn';b.innerHTML=honeyButtonHtml(p);}else{b.className='btn '+cl;b.innerHTML='<b>'+p.name+'</b><br>'+euro(p.price);}b.onclick=()=>add(p);g.appendChild(b)});const other=products.filter(p=>p.cat===c&&!p.fav&&p.active!==false).sort((a,b)=>(a.pos||999)-(b.pos||999));if(other.length){const m=document.createElement('button');m.className='more';m.textContent=expanded[c]?'▲ Weitere Produkte':'▼ Weitere Produkte ('+other.length+')';m.onclick=()=>{expanded[c]=!expanded[c];render();};box.appendChild(m);if(expanded[c]){const hg=document.createElement('div');hg.className='grid';other.forEach(p=>{const b=document.createElement('button');if(c==='Honige'){b.className='btn honey-btn';b.innerHTML=honeyButtonHtml(p);}else{b.className='btn '+cl;b.innerHTML='<b>'+p.name+'</b><br>'+euro(p.price);}b.onclick=()=>add(p);hg.appendChild(b)});box.appendChild(hg);}}el.appendChild(box)});renderCart();stats();}
+function getLastSaleIndex(){
+
+for(let i=sales.length-1;i>=0;i--){
+
+if(
+!sales[i].storno &&
+sales[i].salesLocation===activeSalesLocation
+){
+return i;
+}
+
+}
+
+return -1;
+}
+
 function editLastSale(){
 
 if(!sales.length)return alert('Kein Bon vorhanden');
 
-editingSale=sales.length-1;
+editingSale=getLastSaleIndex();
+
+if(editingSale===-1){
+alert('Für diese Verkaufsstelle ist kein Bon vorhanden');
+return;
+}
 
 cart=JSON.parse(JSON.stringify(sales[editingSale].items));
 
@@ -273,15 +294,17 @@ renderCart();
 
 function deleteLastSale(){
 
-if(!sales.length){
+const index=getLastSaleIndex();
 
-alert('Kein Bon vorhanden');
+if(index===-1){
+
+alert('Für diese Verkaufsstelle ist kein Bon vorhanden');
 
 return;
 
 }
 
-sales[sales.length-1].storno=true;
+sales[index].storno=true;
 
 localStorage.setItem('sales_v31',JSON.stringify(sales));
 
