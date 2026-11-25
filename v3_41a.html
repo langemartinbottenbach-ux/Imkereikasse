@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Imkereikasse V3.40</title>
+<title>Imkereikasse V3.41</title>
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#f4f1ea}
 header{background:#1e293b;color:#fff;padding:0;text-align:center;height:18px;overflow:hidden}header h6{margin:0;line-height:18px}
@@ -29,7 +29,7 @@ border-bottom:1px solid #eee;
 <body>
 <header>
 <h6>
-🐝 Imkereikasse 3.40 | Verkaufsstelle: <span id="salesLocationHeader"></span>
+🐝 Imkereikasse 3.41 | Verkaufsstelle: <span id="salesLocationHeader"></span>
 </h6>
 </header>
 <div class="main">
@@ -468,16 +468,16 @@ return Math.round(
 
 }
 
-function fromCents(*ents){
+function fromCents(cents){
 
-return (Number(cents)||0)/*00;
+return (Number(cents)||0)/100;
 
 }
 
-function createEditorItemI*(){
+function createEditorItemId(){
 
 return 'OI'+
-Date.now().toStr*ng()+
+Date.now().toString()+
 Math.random()
 .toString(36)
 .substring(2);
