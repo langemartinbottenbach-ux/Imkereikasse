@@ -1482,6 +1482,22 @@ offerEditorItems=[];
 
 }
 
+function removeOfferItem(
+editorItemId
+){
+
+offerEditorItems=
+offerEditorItems.filter(
+item=>
+item.editorItemId!==editorItemId
+);
+
+renderOfferItemsEditor();
+
+updateOfferCalculation();
+
+}
+
 function toggleOfferGift(
 editorItemId
 ){
@@ -1580,11 +1596,11 @@ if(!editor){
 return;
 }
 
-const regularTotal=
+const regularTotalCents=
 offerEditorItems.reduce(
 (sum,item)=>
 sum+
-(Number(item.listPrice)||0),
+toCents(item.listPrice),
 0
 );
 
@@ -1592,7 +1608,9 @@ if(regularTotalElement){
 
 regularTotalElement.textContent=
 'Regulärer Gesamtwert: '+
-euro(regularTotal);
+euro(
+fromCents(regularTotalCents)
+);
 
 }
 
@@ -1611,7 +1629,13 @@ offerEditorItems.forEach(
 (item,index)=>{
 
 html+=
-'<div style="border-bottom:1px solid #ddd;padding:8px 0;">';
+'<div style="border-bottom:1px solid #ddd;padding:10px 0;">';
+
+html+=
+'<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">';
+
+html+=
+'<div>';
 
 html+=
 '<b>'+
@@ -1633,12 +1657,26 @@ html+=
 'Listenpreis: '+
 euro(item.listPrice);
 
-html+='<br><br>';
+html+='</div>';
 
 html+=
 '<button '+
 'type="button" '+
-'style="background:#f59e0b;color:white;border:none;padding:6px 10px;border-radius:6px;" '+
+'style="background:#dc2626;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;" '+
+'onclick="removeOfferItem(\''+
+item.editorItemId+
+'\')">'+
+'🗑️ Entfernen'+
+'</button>';
+
+html+='</div>';
+
+html+='<br>';
+
+html+=
+'<button '+
+'type="button" '+
+'style="background:#f59e0b;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;" '+
 'onclick="toggleOfferGift(\''+
 item.editorItemId+
 '\')">'+
