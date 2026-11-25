@@ -1393,14 +1393,22 @@ document.getElementById(
 'offerSetPrice'
 ).value='0.00';
 
+const autoRadio=
+document.querySelector(
+'input[name="offerDistributionMode"][value="AUTO"]'
+);
+
+if(autoRadio){
+
+autoRadio.checked=true;
+
+}
+
 fillOfferProductSelect();
 
 renderOfferItemsEditor();
 
-document.getElementById(
-'offerDistributionPreview'
-).innerHTML=
-'Preisverteilung folgt in einem späteren Schritt.';
+updateOfferCalculation();
 
 document.getElementById(
 'offerModal'
@@ -1563,8 +1571,29 @@ document.getElementById(
 'offerItemsEditor'
 );
 
+const regularTotalElement=
+document.getElementById(
+'offerRegularTotal'
+);
+
 if(!editor){
 return;
+}
+
+const regularTotal=
+offerEditorItems.reduce(
+(sum,item)=>
+sum+
+(Number(item.listPrice)||0),
+0
+);
+
+if(regularTotalElement){
+
+regularTotalElement.textContent=
+'Regulärer Gesamtwert: '+
+euro(regularTotal);
+
 }
 
 if(!offerEditorItems.length){
@@ -1608,6 +1637,7 @@ html+='<br><br>';
 
 html+=
 '<button '+
+'type="button" '+
 'style="background:#f59e0b;color:white;border:none;padding:6px 10px;border-radius:6px;" '+
 'onclick="toggleOfferGift(\''+
 item.editorItemId+
@@ -1669,11 +1699,15 @@ product.cat,
 listPrice:
 Number(product.price)||0,
 
-isGift:false
+isGift:false,
+
+allocatedPrice:0
 
 });
 
 renderOfferItemsEditor();
+
+updateOfferCalculation();
 
 }
 
