@@ -65,15 +65,19 @@ onclick="resetAllData()">
 
 <h2 id="salesModalTitle">📋 Tagesliste</h2>
 
+<div id="salesModalFilterInfo"
+style="background:#f3f4f6;padding:8px;border-radius:8px;margin-bottom:8px;font-weight:bold;">
+</div>
+
 <button
 class="listbtn"
-onclick="showAllSales()">
+onclick="showAllLocationsInCurrentView()">
 🌍 Alle Verkaufsstellen
 </button>
 
 <button
 class="listbtn"
-onclick="showSales()">
+onclick="showActiveLocationInCurrentView()">
 🏪 Aktive Verkaufsstelle
 </button>
 
@@ -709,7 +713,15 @@ document.getElementById('artikel')
 }
 function showSales(){
 
-document.getElementById('salesModalTitle').textContent='📋 Tagesliste';
+currentModalView='SALES';
+
+updateSalesModalFilterInfo('CURRENT');
+
+
+document.getElementById('salesModalTitle')
+.textContent='📋 Tagesliste';
+
+updateSalesModalFilterInfo('CURRENT');
 
 const filteredSales=sales
 .filter(
@@ -752,13 +764,18 @@ text+=' ('+euro(preis)+') = '+euro(item.qty*preis);
 return text;
 
 }).join('<br>');
+
 }
 
 return `
 <div>
+
 <strong>${i+1}. ${s.time}</strong>
+
 <br>
+
 🏪 ${s.salesLocation || 'Unbekannt'}
+
 <br><br>
 
 ${artikel}
@@ -792,6 +809,7 @@ onclick="deleteSale(${sales.indexOf(s)})">
 }
 
 </div>
+
 <hr>
 `;
 
@@ -805,12 +823,79 @@ onclick="deleteSale(${sales.indexOf(s)})">
 '<hr><h3>Gesamtumsatz: '+euro(gesamt)+'</h3>';
 
 salesModal.classList.add('open');
+
 }
+/*
+Aktuell im gemeinsamen Fenster angezeigte Ansicht:
+
+SALES     = Tagesliste beziehungsweise Bons
+INVENTORY = Verkaufsübersicht beziehungsweise Produkttabelle
+PORTFOLIO = Produktportfolio
+
+Der Anzeigefilter wird nur für das geöffnete Fenster verwendet.
+Die tatsächlich aktive Verkaufsstelle wird dadurch nicht verändert.
+*/
+let currentModalView='SALES';
+
+function showAllLocationsInCurrentView(){
+
+if(currentModalView==='INVENTORY'){
+showInventory('ALL');
+return;
+}
+
+if(currentModalView==='SALES'){
+showAllSales();
+return;
+}
+
+}
+
+function showActiveLocationInCurrentView(){
+
+if(currentModalView==='INVENTORY'){
+showInventory('CURRENT');
+return;
+}
+
+if(currentModalView==='SALES'){
+showSales();
+return;
+}
+
+}
+
+function updateSalesModalFilterInfo(scope){
+
+const info=document.getElementById('salesModalFilterInfo');
+
+if(!info){
+return;
+}
+
+if(scope==='ALL'){
+info.innerHTML='🌍 Anzeige: Alle Verkaufsstellen';
+}else{
+info.innerHTML=
+'🏪 Anzeige: '+
+(
+activeSalesLocation==='ALLE'
+? 'Alle Verkaufsstellen'
+: activeSalesLocation
+);
+}
+
+}
+
 let deleteIndex=null;
 
 function showAllSales(){
 
+currentModalView='SALES';
+
 document.getElementById('salesModalTitle').textContent='📋 Tagesliste - alle Verkaufsstellen';
+
+updateSalesModalFilterInfo('ALL');
 
 const gesamt=sales
 .filter(s=>!s.storno)
@@ -946,9 +1031,29 @@ render();
 showPortfolio();
 }
 
-function showInventory(){
+function showInventory(scope='CURRENT'){
 
-document.getElementById('salesModalTitle').textContent='📊 Verkaufsübersicht';
+currentModalView='INVENTORY';
+
+const showAllLocations=
+scope==='ALL' ||
+activeSalesLocation==='ALLE';
+
+if(showAllLocations){
+
+document.getElementById('salesModalTitle').textContent=
+'📊 Verkaufsübersicht - alle Verkaufsstellen';
+
+updateSalesModalFilterInfo('ALL');
+
+}else{
+
+document.getElementById('salesModalTitle').textContent=
+'📊 Verkaufsübersicht';
+
+updateSalesModalFilterInfo('CURRENT');
+
+}
 
 let inventory={};
 
@@ -960,7 +1065,7 @@ productCategories[p.name]=p.cat;
 sales.filter(sale=>
 !sale.storno &&
 (
-activeSalesLocation==='ALLE' ||
+showAllLocations ||
 sale.salesLocation===activeSalesLocation
 )
 ).forEach(sale=>{
