@@ -376,11 +376,7 @@ return;
 
 sales[index].storno=true;
 
-if(editingSale===index){
-editingSale=null;
-cart=[];
-document.getElementById('editInfo').style.display='none';
-}
+
 
 
 if(editingSale===index){
@@ -713,10 +709,7 @@ document.getElementById('artikel')
 }
 function showSales(){
 
-currentModalView='SALES';
-
-updateSalesModalFilterInfo('CURRENT');
-
+setCurrentModalView('SALES');
 
 document.getElementById('salesModalTitle')
 .textContent='📋 Tagesliste';
@@ -739,7 +732,7 @@ const gesamt=filteredSales
 0
 );
 
-salesContent.innerHTML=
+document.getElementById('salesContent').innerHTML=
 (
 filteredSales.length
 ?
@@ -757,6 +750,14 @@ let text=item.qty+'x '+item.name;
 
 if(item.isGift){
 text+=' 🎁 GESCHENK';
+}
+
+if(item.discountType==='PERCENT'){
+text+=' 💰 RABATT '+item.discountValue+'%';
+}
+
+if(item.discountType==='EURO'){
+text+=' 💰 RABATT '+euro(item.discountValue);
 }
 
 text+=' ('+euro(preis)+') = '+euro(item.qty*preis);
@@ -817,34 +818,52 @@ onclick="deleteSale(${sales.indexOf(s)})">
 :
 'Keine Verkäufe vorhanden'
 )
-
 +
-
 '<hr><h3>Gesamtumsatz: '+euro(gesamt)+'</h3>';
 
-salesModal.classList.add('open');
+document.getElementById('salesModal').classList.add('open');
 
 }
 /*
-Aktuell im gemeinsamen Fenster angezeigte Ansicht:
+Die aktuell geöffnete Ansicht wird direkt am Modal gespeichert.
 
 SALES     = Tagesliste beziehungsweise Bons
 INVENTORY = Verkaufsübersicht beziehungsweise Produkttabelle
 PORTFOLIO = Produktportfolio
-
-Der Anzeigefilter wird nur für das geöffnete Fenster verwendet.
-Die tatsächlich aktive Verkaufsstelle wird dadurch nicht verändert.
 */
-let currentModalView='SALES';
+
+function setCurrentModalView(view){
+
+const modal=document.getElementById('salesModal');
+
+if(modal){
+modal.dataset.currentView=view;
+}
+
+}
+
+function getCurrentModalView(){
+
+const modal=document.getElementById('salesModal');
+
+if(!modal || !modal.dataset.currentView){
+return 'SALES';
+}
+
+return modal.dataset.currentView;
+
+}
 
 function showAllLocationsInCurrentView(){
 
-if(currentModalView==='INVENTORY'){
+const currentView=getCurrentModalView();
+
+if(currentView==='INVENTORY'){
 showInventory('ALL');
 return;
 }
 
-if(currentModalView==='SALES'){
+if(currentView==='SALES'){
 showAllSales();
 return;
 }
@@ -853,12 +872,14 @@ return;
 
 function showActiveLocationInCurrentView(){
 
-if(currentModalView==='INVENTORY'){
+const currentView=getCurrentModalView();
+
+if(currentView==='INVENTORY'){
 showInventory('CURRENT');
 return;
 }
 
-if(currentModalView==='SALES'){
+if(currentView==='SALES'){
 showSales();
 return;
 }
@@ -874,8 +895,11 @@ return;
 }
 
 if(scope==='ALL'){
+
 info.innerHTML='🌍 Anzeige: Alle Verkaufsstellen';
+
 }else{
+
 info.innerHTML=
 '🏪 Anzeige: '+
 (
@@ -883,6 +907,7 @@ activeSalesLocation==='ALLE'
 ? 'Alle Verkaufsstellen'
 : activeSalesLocation
 );
+
 }
 
 }
@@ -891,61 +916,119 @@ let deleteIndex=null;
 
 function showAllSales(){
 
-currentModalView='SALES';
+setCurrentModalView('SALES');
 
-document.getElementById('salesModalTitle').textContent='📋 Tagesliste - alle Verkaufsstellen';
+document.getElementById('salesModalTitle')
+.textContent='📋 Tagesliste - alle Verkaufsstellen';
 
 updateSalesModalFilterInfo('ALL');
 
+const filteredSales=sales
+.slice()
+.reverse();
+
 const gesamt=sales
 .filter(s=>!s.storno)
-.reduce((a,b)=>a+b.total,0);
+.reduce(
+(a,b)=>a+b.total,
+0
+);
 
-salesContent.innerHTML=
-sales
-.filter(s=>!s.storno)
-.slice()
-.reverse()
-.map((s,i)=>{
+document.getElementById('salesContent').innerHTML=
+(
+filteredSales.length
+?
+filteredSales.map((s,i)=>{
+
 let artikel='';
 
 if(s.items){
+
 artikel=s.items.map(item=>{
 
 let preis=getItemPrice(item);
 
-return item.qty+
-'x '+
-item.name+
-' ('+
-euro(preis)+
-')';
+let text=item.qty+'x '+item.name;
+
+if(item.isGift){
+text+=' 🎁 GESCHENK';
+}
+
+if(item.discountType==='PERCENT'){
+text+=' 💰 RABATT '+item.discountValue+'%';
+}
+
+if(item.discountType==='EURO'){
+text+=' 💰 RABATT '+euro(item.discountValue);
+}
+
+text+=' ('+euro(preis)+') = '+euro(item.qty*preis);
+
+return text;
 
 }).join('<br>');
+
 }
 
 return `
 <div>
+
 <strong>${i+1}. ${s.time}</strong>
+
 <br>
-🏪 ${s.salesLocation||'Unbekannt'}
+
+🏪 ${s.salesLocation || 'Unbekannt'}
+
 <br><br>
+
 ${artikel}
+
 <br><br>
-${euro(s.total)}
+
+${
+s.storno
+?
+`
+<div style="color:red;font-weight:bold;">
+❌ STORNIERT
 </div>
+
+<br>
+
+<button
+style="background:#16a34a;color:white;border:none;padding:6px 10px;border-radius:6px;"
+onclick="restoreSale(${sales.indexOf(s)})">
+↩️ Storno aufheben
+</button>
+`
+:
+`
+<strong>${euro(s.total)}</strong>
+
+<br><br>
+
+<button
+style="background:red;color:white;border:none;padding:6px 10px;border-radius:6px;"
+onclick="deleteSale(${sales.indexOf(s)})">
+🗑️ Stornieren
+</button>
+`
+}
+
+</div>
+
 <hr>
 `;
 
 }).join('')
-
+:
+'Keine Verkäufe vorhanden'
+)
 +
+'<h3>Gesamtumsatz: '+euro(gesamt)+'</h3>';
 
-'<h3>Gesamtumsatz: '+
-euro(gesamt)+
-'</h3>';
+document.getElementById('salesModal').classList.add('open');
 
-salesModal.classList.add('open');
 }
 
 function closeSales(){
@@ -961,6 +1044,8 @@ localStorage.setItem('sales_v31',JSON.stringify(sales));document.getElementById(
 
 
 function showPortfolio(){
+
+setCurrentModalView('PORTFOLIO');
 
 document.getElementById('salesModalTitle').textContent='⚙️ Produktportfolio';
 
@@ -1033,7 +1118,7 @@ showPortfolio();
 
 function showInventory(scope='CURRENT'){
 
-currentModalView='INVENTORY';
+setCurrentModalView('INVENTORY');
 
 const showAllLocations=
 scope==='ALL' ||
@@ -1041,15 +1126,15 @@ activeSalesLocation==='ALLE';
 
 if(showAllLocations){
 
-document.getElementById('salesModalTitle').textContent=
-'📊 Verkaufsübersicht - alle Verkaufsstellen';
+document.getElementById('salesModalTitle')
+.textContent='📊 Verkaufsübersicht - alle Verkaufsstellen';
 
 updateSalesModalFilterInfo('ALL');
 
 }else{
 
-document.getElementById('salesModalTitle').textContent=
-'📊 Verkaufsübersicht';
+document.getElementById('salesModalTitle')
+.textContent='📊 Verkaufsübersicht';
 
 updateSalesModalFilterInfo('CURRENT');
 
@@ -1060,32 +1145,44 @@ let inventory={};
 const productCategories={};
 
 products.forEach(p=>{
-productCategories[p.name]=p.cat;
+productCategories[p.id]=p.cat;
 });
-sales.filter(sale=>
+
+sales
+.filter(sale=>
 !sale.storno &&
 (
 showAllLocations ||
 sale.salesLocation===activeSalesLocation
 )
-).forEach(sale=>{
-if(sale.items){
+)
+.forEach(sale=>{
+
+if(!sale.items){
+return;
+}
 
 sale.items.forEach(item=>{
 
-if(!inventory[item.name]){
-inventory[item.name]={
+const inventoryKey=item.id || item.name;
+
+if(!inventory[inventoryKey]){
+
+inventory[inventoryKey]={
+name:item.name,
+cat:item.cat || productCategories[item.id] || 'Unbekannt',
 qty:0,
 umsatz:0
 };
+
 }
 
-inventory[item.name].qty+=item.qty;
-inventory[item.name].umsatz+=item.qty*getItemPrice(item);
+inventory[inventoryKey].qty+=item.qty || 1;
+
+inventory[inventoryKey].umsatz+=
+(item.qty || 1)*getItemPrice(item);
 
 });
-
-}
 
 });
 
@@ -1096,11 +1193,17 @@ html+='<div style="max-height:500px;overflow-y:auto;">';
 html+='<table style="width:100%;border-collapse:collapse;">';
 
 html+='<thead style="position:sticky;top:0;background:white;z-index:10;">';
+
 html+='<tr>';
+
 html+='<th style="text-align:left;padding:8px;border-bottom:2px solid #333;">Artikel</th>';
+
 html+='<th style="text-align:center;padding:8px;border-bottom:2px solid #333;">Menge</th>';
+
 html+='<th style="text-align:right;padding:8px;border-bottom:2px solid #333;">Umsatz</th>';
+
 html+='</tr>';
+
 html+='</thead>';
 
 html+='<tbody>';
@@ -1114,21 +1217,29 @@ let katMenge=0;
 let katUmsatz=0;
 
 html+='<tr style="background:#f3f4f6;">';
+
 html+='<td colspan="3" style="padding:10px;font-weight:bold;font-size:16px;">'+cat+'</td>';
+
 html+='</tr>';
 
 Object.keys(inventory)
-.filter(name=>productCategories[name]===cat)
+.filter(key=>inventory[key].cat===cat)
 .sort((a,b)=>inventory[b].umsatz-inventory[a].umsatz)
-.forEach(name=>{
+.forEach(key=>{
 
-katMenge+=inventory[name].qty;
-katUmsatz+=inventory[name].umsatz;
+const entry=inventory[key];
+
+katMenge+=entry.qty;
+katUmsatz+=entry.umsatz;
 
 html+='<tr>';
-html+='<td style="padding:6px;border-bottom:1px solid #ddd;">'+name+'</td>';
-html+='<td style="padding:6px;text-align:center;border-bottom:1px solid #ddd;">'+inventory[name].qty+'</td>';
-html+='<td style="padding:6px;text-align:right;border-bottom:1px solid #ddd;">'+euro(inventory[name].umsatz)+'</td>';
+
+html+='<td style="padding:6px;border-bottom:1px solid #ddd;">'+entry.name+'</td>';
+
+html+='<td style="padding:6px;text-align:center;border-bottom:1px solid #ddd;">'+entry.qty+'</td>';
+
+html+='<td style="padding:6px;text-align:right;border-bottom:1px solid #ddd;">'+euro(entry.umsatz)+'</td>';
+
 html+='</tr>';
 
 });
@@ -1137,25 +1248,37 @@ gesamtMenge+=katMenge;
 gesamtUmsatz+=katUmsatz;
 
 html+='<tr style="background:#ecfccb;font-weight:bold;">';
+
 html+='<td style="padding:8px;">Summe '+cat+'</td>';
+
 html+='<td style="padding:8px;text-align:center;">'+katMenge+'</td>';
+
 html+='<td style="padding:8px;text-align:right;">'+euro(katUmsatz)+'</td>';
+
 html+='</tr>';
 
 });
 
 html+='<tr style="background:#bfdbfe;font-weight:bold;font-size:16px;">';
+
 html+='<td style="padding:10px;">GESAMT</td>';
+
 html+='<td style="padding:10px;text-align:center;">'+gesamtMenge+'</td>';
+
 html+='<td style="padding:10px;text-align:right;">'+euro(gesamtUmsatz)+'</td>';
+
 html+='</tr>';
 
 html+='</tbody>';
+
 html+='</table>';
+
 html+='</div>';
 
-salesContent.innerHTML=html;
-salesModal.classList.add('open');
+document.getElementById('salesContent').innerHTML=html;
+
+document.getElementById('salesModal').classList.add('open');
+
 }
 
 
