@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Imkereikasse V3.39</title>
+<title>Imkereikasse V3.40</title>
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#f4f1ea}
 header{background:#1e293b;color:#fff;padding:0;text-align:center;height:18px;overflow:hidden}header h6{margin:0;line-height:18px}
@@ -29,7 +29,7 @@ border-bottom:1px solid #eee;
 <body>
 <header>
 <h6>
-🐝 Imkereikasse 3.39 | Verkaufsstelle: <span id="salesLocationHeader"></span>
+🐝 Imkereikasse 3.40 | Verkaufsstelle: <span id="salesLocationHeader"></span>
 </h6>
 </header>
 <div class="main">
@@ -59,7 +59,11 @@ style="background:#991b1b;margin-top:8px;margin-bottom:0;"
 onclick="resetAllData()">
 ⚠️ Alle Verkaufsdaten löschen
 </button></div></div>
-<div id="salesModal" class="modal"><div class="modalbox"><h2>Tagesliste</h2>
+<div id="salesModal" class="modal">
+
+<div class="modalbox">
+
+<h2 id="salesModalTitle">📋 Tagesliste</h2>
 
 <button
 class="listbtn"
@@ -73,11 +77,23 @@ onclick="showSales()">
 🏪 Aktive Verkaufsstelle
 </button>
 
-<br><br>salesContent.innerHTML=
-(
-filteredSales.length
-?
-...<br><button onclick="closeSales()">Schließen</button></div></div><div id="confirmModal" class="modal"><div class="modalbox"><h3>Bon wirklich stornieren?</h3><br><button class="pay" onclick="confirmDelete()">Ja, stornieren</button><br><br><button class="listbtn" onclick="closeConfirm()">Abbrechen</button></div></div>
+<button
+class="listbtn"
+style="background:#64748b;margin-top:8px;"
+onclick="closeSales()">
+❌ Schließen
+</button>
+
+<br><br>
+
+<div
+id="salesContent"
+style="max-height:55vh;overflow-y:auto;padding-right:6px;">
+</div>
+
+</div>
+
+</div><div id="confirmModal" class="modal"><div class="modalbox"><h3>Bon wirklich stornieren?</h3><br><button class="pay" onclick="confirmDelete()">Ja, stornieren</button><br><br><button class="listbtn" onclick="closeConfirm()">Abbrechen</button></div></div>
 
 <div id="checkoutModal" class="modal">
 <div class="modalbox">
@@ -693,6 +709,8 @@ document.getElementById('artikel')
 }
 function showSales(){
 
+document.getElementById('salesModalTitle').textContent='📋 Tagesliste';
+
 const filteredSales=sales
 .filter(
 s =>
@@ -792,6 +810,8 @@ let deleteIndex=null;
 
 function showAllSales(){
 
+document.getElementById('salesModalTitle').textContent='📋 Tagesliste - alle Verkaufsstellen';
+
 const gesamt=sales
 .filter(s=>!s.storno)
 .reduce((a,b)=>a+b.total,0);
@@ -855,7 +875,11 @@ document.getElementById('editInfo').style.display='none';
 localStorage.setItem('sales_v31',JSON.stringify(sales));document.getElementById('confirmModal').classList.remove('open');deleteIndex=null;stats();showSales();}function restoreSale(index){sales[index].storno=false;localStorage.setItem('sales_v31',JSON.stringify(sales));stats();showSales();}
 
 
-function showPortfolio(){let html='<h2>Produktportfolio</h2><button class="pay" onclick="newProduct()">➕ Neues Produkt</button><br><br>';products.forEach((p,i)=>{html+='<div style="border-bottom:1px solid #ddd;padding:8px 0;"><b>'+p.name+'</b><br>ID: '+p.id+'<br>Kategorie: '+p.cat+'<br>Position: '+(p.pos||999)+'<br>Preis: '+euro(p.price)+'<br>Favorit: '+(p.fav?'✅ Ja':'❌ Nein')+'<br>Aktiv: '+(p.active===false?'❌ Nein':'✅ Ja')+'<br><br><button style="background:#2563eb;color:white;border:none;padding:6px 10px;border-radius:6px;margin-right:5px;" onclick="toggleFav('+i+')">⭐ Favorit</button><button style="background:#f97316;color:white;border:none;padding:6px 10px;border-radius:6px;margin-right:5px;" onclick="toggleActive('+i+')">👁 Sichtbarkeit</button><button style="background:#16a34a;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="editProduct('+i+')">✏️ Bearbeiten</button></div>';});salesContent.innerHTML=html;salesModal.classList.add('open');}
+function showPortfolio(){
+
+document.getElementById('salesModalTitle').textContent='⚙️ Produktportfolio';
+
+let html='<h2>Produktportfolio</h2><button class="pay" onclick="newProduct()">➕ Neues Produkt</button><br><br>';products.forEach((p,i)=>{html+='<div style="border-bottom:1px solid #ddd;padding:8px 0;"><b>'+p.name+'</b><br>ID: '+p.id+'<br>Kategorie: '+p.cat+'<br>Position: '+(p.pos||999)+'<br>Preis: '+euro(p.price)+'<br>Favorit: '+(p.fav?'✅ Ja':'❌ Nein')+'<br>Aktiv: '+(p.active===false?'❌ Nein':'✅ Ja')+'<br><br><button style="background:#2563eb;color:white;border:none;padding:6px 10px;border-radius:6px;margin-right:5px;" onclick="toggleFav('+i+')">⭐ Favorit</button><button style="background:#f97316;color:white;border:none;padding:6px 10px;border-radius:6px;margin-right:5px;" onclick="toggleActive('+i+')">👁 Sichtbarkeit</button><button style="background:#16a34a;color:white;border:none;padding:6px 10px;border-radius:6px;" onclick="editProduct('+i+')">✏️ Bearbeiten</button></div>';});salesContent.innerHTML=html;salesModal.classList.add('open');}
 
 function toggleFav(index){products[index].fav=!products[index].fav;saveProducts();render();showPortfolio();}
 
@@ -923,6 +947,8 @@ showPortfolio();
 }
 
 function showInventory(){
+
+document.getElementById('salesModalTitle').textContent='📊 Verkaufsübersicht';
 
 let inventory={};
 
